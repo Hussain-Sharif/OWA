@@ -4,6 +4,12 @@ import { getGithubRepoInfo } from "./routes/getGithubRepoInfo";
 import { Bindings, GithubBadResponseType, GithubGoodResponseType } from "./libs/types";
 import { StatusCode } from "hono/utils/http-status";
 
+export interface Env {
+    SHARIF_USERNAME: string;
+    SHARIF_REPONAME: string;
+    SHARIF_PAT: string;
+}
+
 //CONFIG AND APP readiness
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -12,17 +18,7 @@ app.use("/*", cors());
 
 //Routes
 app.get("/", async (c) => {
-    // console.log('Environment check:', {
-    //   username: c.env.SHARIF_USERNAME,
-    //   reponame: c.env.SHARIF_REPONAME,
-    //   pat: c.env.SHARIF_PAT ? 'SET' : 'UNDEFINED'
-    // })
-    // return c.json({
-    //   username: !!c.env.SHARIF_USERNAME,
-    //   reponame: !!c.env.SHARIF_REPONAME,
-    //   pat: !!c.env.SHARIF_PAT
-    // })
-    console.log(c.env);
+    console.log("🥁", c.env);
     const response: GithubGoodResponseType | GithubBadResponseType = await getGithubRepoInfo(
         c.env.SHARIF_USERNAME,
         c.env.SHARIF_REPONAME,

@@ -5,10 +5,9 @@
     "dev": "wrangler dev src/index.ts",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-     "biome": "biome format --write ./src"
+    "biome": "biome format --write ./"
   },
   "dependencies": {
-    "dotenv": "^17.2.2",
     "hono": "^4.9.6"
   },
   "devDependencies": {
