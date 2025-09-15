@@ -22,7 +22,9 @@ app.get("/", async (c) => {
     );
     c.status(sharifResponse.statusCode as StatusCode);
     // getTopCommits({...sharifResponse})
-    return c.json(getTopCommits({...sharifResponse}));
+    return c.json(getTopCommits(c.env.SHARIF_USERNAME,
+        c.env.SHARIF_REPONAME,
+        c.env.SHARIF_PAT,{...sharifResponse}));
 });
 
 app.notFound((c) => {

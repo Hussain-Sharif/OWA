@@ -1,4 +1,5 @@
 import { EachCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
+import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
 
 
 export const filteredTodaysCommits =(allCommistsData:EachCommit[])=>{
@@ -13,11 +14,19 @@ export const filteredTodaysCommits =(allCommistsData:EachCommit[])=>{
 }
 
 export const formattedCommits = (commits:EachCommit[])=>{
-    
+    const messageTemplate=`
+        Time:
+        File Name: 
+        Commit Message:
+        <---------------------->
+    `
+
+
+
 }
 
 
-export const getTopCommits = (repoRepsponse:GithubGoodResponseType | GithubBadResponseType)=>{
+export const getTopCommits =  async(userName: string, repoName: string, pat: string,repoRepsponse:GithubGoodResponseType | GithubBadResponseType)=>{
     if(typeof repoRepsponse === "object" && repoRepsponse.statusCode===200 && "data" in repoRepsponse){
         // console.log(repoRepsponse)
         console.log("inside getTopCommits")
@@ -37,11 +46,26 @@ export const getTopCommits = (repoRepsponse:GithubGoodResponseType | GithubBadRe
                 message: "No Commits Today Made",
             }
         }
+        console.log("filteredData:", filteredData)
 
-        
+        // By here have atleast One Commit shit!
 
+        // Now I am decided to only have SHA of every Commit 
+        const listOfCommitShas = filteredData.map((eachCommitObj:EachCommit)=>{
+            return eachCommitObj.sha
+        })
+        // console.log(listOfCommitShas) 
+        console.log("Called getRepoFileExtraInfo")
+        const extraInfo = await getRepoFileExtraInfo(userName, repoName, pat, listOfCommitShas)
+        console.log("getRepoFileExtraInfo:", extraInfo)
 
-        return filteredTodaysCommits(repoRepsponse.data)
+        // Now return both pieces of info
+        return {
+            statusCode: 200,
+            message: "Commits Retrieved",
+            filteredCommits: filteredData,
+            extraInfo: extraInfo
+        }
     
     }
     return repoRepsponse;
