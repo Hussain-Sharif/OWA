@@ -82,6 +82,31 @@ export type EachCommit = {
 
 export type GithubResponsedata = EachCommit[];
 
+export type ExtraInfoGoodResponseCommit =  {
+    statusCode: number,
+    message: string,
+    data: EachCommit & {
+        stats: {
+        total: number,
+        additions: number,
+        deletions: number
+    },
+    files:{
+        sha:string,
+        filename:string,
+        status:string,
+        additions:number,
+        deletions:number,
+        changes:number,
+        blob_url:string,
+        raw_url:string,
+        contents_url:string,
+        patch:string,
+    }
+    }
+    
+}
+
 export type GithubGoodResponseType = {
     statusCode: number;
     message: string;

@@ -13,15 +13,15 @@ app.use("/*", cors());
 
 //Routes
 app.get("/", async (c) => {
-    console.log(c.env);
+    // console.log(c.env);
+
     const sharifResponse: GithubGoodResponseType | GithubBadResponseType = await getGithubRepoInfo(
         c.env.SHARIF_USERNAME,
         c.env.SHARIF_REPONAME, // previous: My-Notes-Vault
         c.env.SHARIF_PAT,
     );
-    c.status(sharifResponse.statusCode as StatusCode);
     // getTopCommits({...sharifResponse})
-    const finalResponse = await getTopCommits(
+    const finalSharifResponse = await getTopCommits(
         c.env.SHARIF_USERNAME,
         c.env.SHARIF_REPONAME,
         c.env.SHARIF_PAT,
@@ -29,7 +29,14 @@ app.get("/", async (c) => {
             ...sharifResponse,
         },
     );
-    return c.json(finalResponse);
+    if(finalSharifResponse.statusCode !== 200){
+        c.status(finalSharifResponse.statusCode as StatusCode);
+        return c.json(finalSharifResponse);
+    }
+    
+
+    c.status(sharifResponse.statusCode as StatusCode);
+    return c.json(finalSharifResponse);
 });
 
 app.notFound((c) => {

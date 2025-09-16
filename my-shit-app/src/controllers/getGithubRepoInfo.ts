@@ -17,7 +17,7 @@ export const getGithubRepoInfo = async (userName: string, repoName: string, pat:
 
         const data = await response.json();
         // console.log(data);
-        console.log(response.status);
+        // console.log(response.status);
         return {
             statusCode: response.status,
             message: "All Good We Got Data",

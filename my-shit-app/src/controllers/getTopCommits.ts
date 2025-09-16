@@ -1,24 +1,38 @@
-import { EachCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
+import { EachCommit, ExtraInfoGoodResponseCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
 import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
 import { isToday } from "date-fns";
 
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
-    // const todayDate = new Date().getUTCDate();
-    // const todayDate= new Date('2025-09-09T16:17:25.597Z').getUTCDate()
-    console.log("inside getTodaysCommits");
+  
+    // console.log("inside getTodaysCommits");
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDate = isToday(new Date(eachCommitObj.commit.committer.date));
         return commitDate;
     });
 };
 
-export const formattedCommits = (commits: EachCommit[]) => {
+export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] ) => {
+
+    const allExtraInfoGoodCommits=allExtraInfocommits as ExtraInfoGoodResponseCommit[]
+
+    console.log("Formatting Commits length:",allExtraInfoGoodCommits.length)
+
     const messageTemplate = `
+        By userName
+
         Time:
         File Name: 
         Commit Message:
+        Files:
+        (Created) fileName,
+        (Updated) fileName,
+        (Deleted) fileName,
         <---------------------->
     `;
+    
+    const authorName=allExtraInfoGoodCommits[0].data.author.login
+    
+    
 };
 
 export const getTopCommits = async (
@@ -33,7 +47,7 @@ export const getTopCommits = async (
         "data" in repoRepsponse
     ) {
         // console.log(repoRepsponse)
-        console.log("inside getTopCommits", userName, repoName, pat);
+        // console.log("inside getTopCommits", userName, repoName, pat);
 
         if (repoRepsponse.data.length === 0) {
             return {
@@ -41,27 +55,38 @@ export const getTopCommits = async (
                 message: "No Commits Made Till Now",
             };
         }
-
-        const filteredData = filteredTodaysCommits(repoRepsponse.data);
-
+        const filteredData: EachCommit[] = filteredTodaysCommits(repoRepsponse.data);
         if (filteredData.length === 0) {
             return {
                 statusCode: 200,
-                message: "No Commits Today Made",
-                data: repoRepsponse.data,
+                message: "No Commits Today Made"
             };
         }
 
         // By here have atleast One Commit shit!
 
         // Now I am decided to only have SHA of every Commit
-        const listOfCommitShas = filteredData.map((eachCommitObj: EachCommit) => {
+        const listOfCommitShas: string[] = filteredData.map((eachCommitObj: EachCommit) => {
             return eachCommitObj.sha;
         });
 
         // console.log("Called getRepoFileExtraInfo");
-        const extraInfo = await getRepoFileExtraInfo(userName, repoName, pat, listOfCommitShas);
+        const extraInfo:ExtraInfoGoodResponseCommit[]|GithubBadResponseType[]  = await getRepoFileExtraInfo(userName, repoName, pat, listOfCommitShas);
         // console.log("getRepoFileExtraInfo:", extraInfo);
+
+        const gotAtleastOneBadResponse = extraInfo.some((eachCommitObj: ExtraInfoGoodResponseCommit|GithubBadResponseType) => {
+            return "statusCode" in eachCommitObj && eachCommitObj.statusCode !== 200;
+        });
+
+        if (gotAtleastOneBadResponse) {
+            return {
+                statusCode: 500,
+                message: "Internal Server Error",
+            };
+        }
+
+        // Format the Data from extraInfo iff statusCode is 200
+        const formattedData = formattedCommits(extraInfo);
 
         // Now return both pieces of info
         return {
