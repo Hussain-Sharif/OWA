@@ -102,10 +102,12 @@ export type ExtraInfoGoodResponseCommit =  {
         raw_url:string,
         contents_url:string,
         patch:string,
-    }
+    }[]
     }
     
 }
+
+export type EachFileOnCommit =ExtraInfoGoodResponseCommit["data"]["files"][0]
 
 export type GithubGoodResponseType = {
     statusCode: number;

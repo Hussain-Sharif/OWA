@@ -1,4 +1,4 @@
-import { EachCommit, ExtraInfoGoodResponseCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
+import { EachCommit, EachFileOnCommit, ExtraInfoGoodResponseCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
 import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
 import { isToday } from "date-fns";
 
@@ -21,7 +21,6 @@ export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommi
         By userName
 
         Time:
-        File Name: 
         Commit Message:
         Files:
         (Created) fileName,
@@ -32,6 +31,35 @@ export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommi
     
     const authorName=allExtraInfoGoodCommits[0].data.author.login
     
+    const listOfFormattedCommitData=allExtraInfoGoodCommits.map((eachExtraInfoCommit: ExtraInfoGoodResponseCommit) => {
+        
+        // Fix Time and Date:
+        const commitTimeDate=eachExtraInfoCommit.data.commit.committer.date
+        const formatedTimeDate=new Date(commitTimeDate).toLocaleString()
+
+        // get commit Message:
+        const eachCommitMessage=eachExtraInfoCommit.data.commit.message
+
+        // get files:
+        const eachCommitFiles=eachExtraInfoCommit.data.files.map((eachFile: EachFileOnCommit) => {
+            return {
+                fileName: eachFile.filename,
+                status:eachFile.status,
+                fileUrl:eachFile.blob_url
+            }
+        })
+
+        return {
+            eachCommitDateTime:formatedTimeDate,
+            eachCommitMessage,
+            eachCommitFiles
+        }
+    })
+
+    return {
+        authorName,
+        listOfFormattedCommitData
+    }
     
 };
 
@@ -92,8 +120,7 @@ export const getTopCommits = async (
         return {
             statusCode: 200,
             message: "Commits Retrieved",
-            filteredCommits: filteredData,
-            extraInfo: extraInfo,
+            formattedData
         };
     }
     return repoRepsponse;
