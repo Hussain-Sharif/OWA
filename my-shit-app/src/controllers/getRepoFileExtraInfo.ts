@@ -54,28 +54,3 @@ export const getRepoFileExtraInfo = async (
     console.log("getRepoFileExtraInfo END:", allResponses.length);
     return allResponses;
 };
-
-// export const getRepoFileExtraInfo = async (
-//     userName: string,
-//     repoName: string,
-//     pat: string,
-//     repoCommitShas: string[]
-// ) => {
-//     console.log("getRepoFileExtraInfo START:", repoCommitShas);
-
-//     const allResponses = [];
-
-//     // Process sequentially to avoid rate limiting
-//     for (const eachCommitSha of repoCommitShas) {
-//         console.log("Fetching commit:", eachCommitSha);
-//         const res = await fetchExtraInfoPerCommit(userName, repoName, pat, eachCommitSha);
-//         console.log("Fetched commit:", eachCommitSha, "Status:", res?.statusCode);
-//         allResponses.push(res);
-
-//         // Add small delay to avoid rate limiting
-//         await new Promise(resolve => setTimeout(resolve, 100));
-//     }
-
-//     console.log("getRepoFileExtraInfo END:", allResponses.length);
-//     return allResponses;
-// };

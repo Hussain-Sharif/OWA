@@ -1,14 +1,14 @@
 import { EachCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
 import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
+import { isToday } from "date-fns";
 
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
-    const todayDate = new Date().getUTCDate();
+    // const todayDate = new Date().getUTCDate();
     // const todayDate= new Date('2025-09-09T16:17:25.597Z').getUTCDate()
-
     console.log("inside getTodaysCommits");
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
-        const commitDate = new Date(eachCommitObj.commit.committer.date).getUTCDate();
-        return commitDate === todayDate;
+        const commitDate = isToday(new Date(eachCommitObj.commit.committer.date));
+        return commitDate;
     });
 };
 
@@ -33,7 +33,7 @@ export const getTopCommits = async (
         "data" in repoRepsponse
     ) {
         // console.log(repoRepsponse)
-        console.log("inside getTopCommits");
+        console.log("inside getTopCommits", userName, repoName, pat);
 
         if (repoRepsponse.data.length === 0) {
             return {
@@ -48,9 +48,9 @@ export const getTopCommits = async (
             return {
                 statusCode: 200,
                 message: "No Commits Today Made",
+                data: repoRepsponse.data,
             };
         }
-        console.log("filteredData:", filteredData);
 
         // By here have atleast One Commit shit!
 
@@ -58,10 +58,10 @@ export const getTopCommits = async (
         const listOfCommitShas = filteredData.map((eachCommitObj: EachCommit) => {
             return eachCommitObj.sha;
         });
-        // console.log(listOfCommitShas)
-        console.log("Called getRepoFileExtraInfo");
+
+        // console.log("Called getRepoFileExtraInfo");
         const extraInfo = await getRepoFileExtraInfo(userName, repoName, pat, listOfCommitShas);
-        console.log("getRepoFileExtraInfo:", extraInfo);
+        // console.log("getRepoFileExtraInfo:", extraInfo);
 
         // Now return both pieces of info
         return {
