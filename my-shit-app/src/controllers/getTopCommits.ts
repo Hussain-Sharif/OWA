@@ -11,6 +11,14 @@ export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
     });
 };
 
+const handleMultiFileStatuses=(allFilteredFiles:{
+    fileName: string,
+    status: string,
+    fileUrl:string
+}[])=>{
+    
+}
+
 export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] ) => {
 
     const allExtraInfoGoodCommits=allExtraInfocommits as ExtraInfoGoodResponseCommit[]
@@ -41,7 +49,7 @@ export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommi
         const eachCommitMessage=eachExtraInfoCommit.data.commit.message
 
         // get files:
-        const eachCommitFiles=eachExtraInfoCommit.data.files.map((eachFile: EachFileOnCommit) => {
+        let eachCommitFiles=eachExtraInfoCommit.data.files.map((eachFile: EachFileOnCommit) => {  
             return {
                 fileName: eachFile.filename,
                 status:eachFile.status,
@@ -49,12 +57,21 @@ export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommi
             }
         })
 
+        // remove ./obsidian files
+        eachCommitFiles=eachCommitFiles.filter((eachFile)=>{
+            return !eachFile.fileName.includes('.obsidian')
+        })
+
+        handleMultiFileStatuses(eachCommitFiles)
+
         return {
             eachCommitDateTime:formatedTimeDate,
             eachCommitMessage,
             eachCommitFiles
         }
     })
+
+
 
     return {
         authorName,
