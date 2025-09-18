@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { getGithubRepoInfo } from "./controllers/getGithubRepoInfo";
-import { Bindings, GithubBadResponseType, GithubGoodResponseType } from "./libs/types";
+import { Bindings, FinalIndividualCommitResponse, GithubBadResponseType, GithubGoodResponseType } from "./libs/types";
 import { StatusCode } from "hono/utils/http-status";
 import { getTopCommits } from "./controllers/getTopCommits";
+import { getSummaryObject } from "./controllers/getSummaryObject";
 
 //CONFIG AND APP readiness
 const app = new Hono<{ Bindings: Bindings }>();
@@ -17,11 +18,11 @@ app.get("/", async (c) => {
 
     const sharifResponse: GithubGoodResponseType | GithubBadResponseType = await getGithubRepoInfo(
         c.env.SHARIF_USERNAME,
-        c.env.SHARIF_REPONAME, // previous: My-Notes-Vault
+        c.env.SHARIF_REPONAME, 
         c.env.SHARIF_PAT,
     );
     // getTopCommits({...sharifResponse})
-    const finalSharifResponse = await getTopCommits(
+    const finalSharifResponse:FinalIndividualCommitResponse | GithubBadResponseType = await getTopCommits(
         c.env.SHARIF_USERNAME,
         c.env.SHARIF_REPONAME,
         c.env.SHARIF_PAT,
@@ -33,10 +34,13 @@ app.get("/", async (c) => {
         c.status(finalSharifResponse.statusCode as StatusCode);
         return c.json(finalSharifResponse);
     }
-    
 
+    const finalGoodResponse= finalSharifResponse as FinalIndividualCommitResponse
+
+    const newformattedSummaryData=getSummaryObject(finalGoodResponse.formattedData);
+    // console.log(newformattedSummaryData)
     c.status(sharifResponse.statusCode as StatusCode);
-    return c.json(finalSharifResponse);
+    return c.json({finalSharifResponse,newformattedSummaryData});
 });
 
 app.notFound((c) => {

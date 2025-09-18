@@ -109,6 +109,28 @@ export type ExtraInfoGoodResponseCommit =  {
 
 export type EachFileOnCommit =ExtraInfoGoodResponseCommit["data"]["files"][0]
 
+export type FormattedData={
+        authorName: string,
+        listOfFormattedCommitData: 
+            {
+                eachCommitDateTime: string,
+                eachCommitMessage: string,
+                eachCommitFiles: 
+                    {
+                        fileName: string,
+                        status: string,
+                        fileUrl: string
+                    }[],
+                
+            }[],
+    }
+
+export type FinalIndividualCommitResponse={
+    statusCode: number,
+    message:string,
+    formattedData:FormattedData
+} 
+
 export type GithubGoodResponseType = {
     statusCode: number;
     message: string;

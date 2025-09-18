@@ -1,13 +1,15 @@
 import { EachCommit, EachFileOnCommit, ExtraInfoGoodResponseCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
 import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
-import { isToday } from "date-fns";
+import { isSameDay, isToday } from "date-fns";
 
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
   
     // console.log("inside getTodaysCommits");
+    // const targetDate = new Date("16/09/2025");
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
-        const commitDate = isToday(new Date(eachCommitObj.commit.committer.date));
-        return commitDate;
+        const commitDate = new Date(eachCommitObj.commit.committer.date);
+        return isToday(commitDate);
+        // return isSameDay(commitDate,targetDate)
     });
 };
 
