@@ -40,7 +40,7 @@ app.get("/", async (c) => {
     const newformattedSummaryData=getSummaryObject(finalGoodResponse.formattedData);
     // console.log(newformattedSummaryData)
     c.status(sharifResponse.statusCode as StatusCode);
-    return c.json({finalSharifResponse,newformattedSummaryData});
+    return c.json({newformattedSummaryData});
     // return c.json({finalSharifResponse});
 });
 

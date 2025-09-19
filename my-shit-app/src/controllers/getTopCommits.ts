@@ -5,7 +5,7 @@ import { isSameDay, isToday } from "date-fns";
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
   
     // console.log("inside getTodaysCommits");
-    const targetDate = new Date("2025-09-16");
+    const targetDate = new Date("2025-09-19");
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDate = new Date(eachCommitObj.commit.committer.date);
         // return isToday(commitDate);
