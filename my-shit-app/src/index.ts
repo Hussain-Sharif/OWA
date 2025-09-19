@@ -30,7 +30,7 @@ app.get("/", async (c) => {
             ...sharifResponse,
         },
     );
-    if(finalSharifResponse.statusCode !== 200){
+    if( finalSharifResponse.statusCode !== 200 || false===("formattedData" in finalSharifResponse)){
         c.status(finalSharifResponse.statusCode as StatusCode);
         return c.json(finalSharifResponse);
     }
@@ -41,6 +41,7 @@ app.get("/", async (c) => {
     // console.log(newformattedSummaryData)
     c.status(sharifResponse.statusCode as StatusCode);
     return c.json({finalSharifResponse,newformattedSummaryData});
+    // return c.json({finalSharifResponse});
 });
 
 app.notFound((c) => {

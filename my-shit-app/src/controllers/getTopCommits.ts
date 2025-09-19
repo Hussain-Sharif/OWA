@@ -5,21 +5,15 @@ import { isSameDay, isToday } from "date-fns";
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
   
     // console.log("inside getTodaysCommits");
-    // const targetDate = new Date("16/09/2025");
+    const targetDate = new Date("2025-09-16");
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDate = new Date(eachCommitObj.commit.committer.date);
-        return isToday(commitDate);
-        // return isSameDay(commitDate,targetDate)
+        // return isToday(commitDate);
+        return isSameDay(commitDate,targetDate)
     });
 };
 
-const handleMultiFileStatuses=(allFilteredFiles:{
-    fileName: string,
-    status: string,
-    fileUrl:string
-}[])=>{
-    
-}
+
 
 export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] ) => {
 
@@ -39,9 +33,9 @@ export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommi
         <---------------------->
     `;
     
-    const authorName=allExtraInfoGoodCommits[0].data.author.login
+    const authorName=allExtraInfoGoodCommits[0]?.data?.author?.login
     
-    const listOfFormattedCommitData=allExtraInfoGoodCommits.map((eachExtraInfoCommit: ExtraInfoGoodResponseCommit) => {
+    const listOfFormattedCommitData=allExtraInfoGoodCommits?.map((eachExtraInfoCommit: ExtraInfoGoodResponseCommit) => {
         
         // Fix Time and Date:
         const commitTimeDate=eachExtraInfoCommit.data.commit.committer.date
@@ -64,7 +58,7 @@ export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommi
             return !eachFile.fileName.includes('.obsidian')
         })
 
-        handleMultiFileStatuses(eachCommitFiles)
+       
 
         return {
             eachCommitDateTime:formatedTimeDate,
