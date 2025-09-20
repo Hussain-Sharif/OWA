@@ -108,6 +108,24 @@
     }
   },
   {
+    "fileName": "File-Renamed-Then-Renamed.md",
+    "fileRemainingInfo": {
+      "fileStatus": "renamed",
+      "fileUrl": "https://github.com/test/File-Renamed-Then-Renamed.md",
+      "fileCommitDateTime": "9/19/2025, 2:40:00 PM",
+      "fileCommitMessage": "Renamed file"
+    }
+  },
+  {
+    "fileName": "File-Renamed-Then-Renamed.md",
+    "fileRemainingInfo": {
+      "fileStatus": "renamed",
+      "fileUrl": "https://github.com/test/File-Renamed-Then-Renamed.md",
+      "fileCommitDateTime": "9/19/2025, 2:40:00 PM",
+      "fileCommitMessage": "Renamed file"
+    }
+  },
+  {
     "fileName": "File-Renamed.md",
     "fileRemainingInfo": {
       "fileStatus": "renamed",
@@ -141,6 +159,24 @@
       "fileUrl": "https://github.com/test/File-Modified-Then-Deleted.md",
       "fileCommitDateTime": "9/19/2025, 3:00:00 PM",
       "fileCommitMessage": "Removed file"
+    }
+  },
+  {
+    "fileName": "File-Modified-Then-Renamed.md",
+    "fileRemainingInfo": {
+      "fileStatus": "modified",
+      "fileUrl": "https://github.com/test/File-Modified-Then-Renamed.md",
+      "fileCommitDateTime": "9/19/2025, 2:50:00 PM",
+      "fileCommitMessage": "Modified the File Initially"
+    }
+  },
+  {
+    "fileName": "File-Modified-Then-Renamed.md",
+    "fileRemainingInfo": {
+      "fileStatus": "renamed",
+      "fileUrl": "https://github.com/test/File-Modified-Then-Renamed.md",
+      "fileCommitDateTime": "9/19/2025, 3:00:00 PM",
+      "fileCommitMessage": "Renamed Modified file"
     }
   }
 ]

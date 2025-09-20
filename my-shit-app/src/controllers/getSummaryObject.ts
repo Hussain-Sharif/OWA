@@ -23,7 +23,7 @@ const finalGroupingBasedOnStatuses=(allPossiableFileCommitsTestData:any)=>{
             // Initially File is renamed/modified & In followed Commits it is keeping modified as its status --> updating the Commit Message & Other Info
             if(filteringMap.has(eachFileData.fileName) 
                 && 
-            eachFileData.fileRemainingInfo.fileStatus==="modified"
+           eachFileData.fileRemainingInfo.fileStatus==="modified"
                 &&
                 (
                     filteringMap.get(eachFileData.fileName).fileStatus==="modified" ||
@@ -31,8 +31,21 @@ const finalGroupingBasedOnStatuses=(allPossiableFileCommitsTestData:any)=>{
                 )
         ){
                 filteringMap.set(eachFileData.fileName,eachFileData.fileRemainingInfo)
-            } // If the File is renamed/created/modified Initialy and now it is Deleted -->Remove From the Map 
-            else if(filteringMap.has(eachFileData.fileName) 
+            } 
+            else if (  // If the File is renamed/modified Initialy Now it is Renamed -->Keeping it as Renamed...Updating the Commit Message & Other Info
+                filteringMap.has(eachFileData.fileName) 
+                && 
+                eachFileData.fileRemainingInfo.fileStatus==="renamed"
+                &&
+                (
+                    filteringMap.get(eachFileData.fileName).fileStatus==="modified" ||
+                    filteringMap.get(eachFileData.fileName).fileStatus==="renamed" 
+                )
+            ){
+                filteringMap.set(eachFileData.fileName,eachFileData.fileRemainingInfo)
+            }            
+            else if(  // If the File is renamed/created/modified Initialy and now it is Deleted -->Remove From the Map 
+                filteringMap.has(eachFileData.fileName) 
                 && 
             eachFileData.fileRemainingInfo.fileStatus==="deleted"
                 &&
