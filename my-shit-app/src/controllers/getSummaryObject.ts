@@ -63,9 +63,31 @@ const finalGroupingBasedOnStatuses=(allPossiableFileCommitsTestData:any)=>{
         
         
     })
-    return  Object.fromEntries(filteringMap); //here I have checked it is working fine
+    // return  Object.fromEntries(filteringMap); //here I have checked it is working fine
 
+    const categorizedMap=new Map()
+
+    const it=filteringMap[Symbol.iterator]()
+
+    for (let eachCommit of it){
+    // console.log(eachCommit)
+    const currCommitStatus=eachCommit[1].fileStatus
     
+    const currCommitRelatedInfo={
+        ...eachCommit[1],
+        fileName:eachCommit[0],
+    }
+    // if new category is added here for the 1st time
+    if(!categorizedMap.has(currCommitStatus)){
+        categorizedMap.set(currCommitStatus,[currCommitRelatedInfo])
+    }else{
+        categorizedMap.set(currCommitStatus,[...categorizedMap.get(currCommitStatus),currCommitRelatedInfo])
+    }
+    }
+
+    console.log(Object.fromEntries(categorizedMap))
+
+    return Object.fromEntries(categorizedMap)
 
 
 }
