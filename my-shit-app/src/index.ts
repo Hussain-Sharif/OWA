@@ -1,7 +1,13 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { getGithubRepoInfo } from "./controllers/getGithubRepoInfo";
-import { Bindings, FinalIndividualCommitResponse, FinalUserCommitsData_Summary, GithubBadResponseType, GithubGoodResponseType } from "./libs/types";
+import {
+    Bindings,
+    FinalIndividualCommitResponse,
+    FinalUserCommitsData_Summary,
+    GithubBadResponseType,
+    GithubGoodResponseType,
+} from "./libs/types";
 import { StatusCode } from "hono/utils/http-status";
 import { getTopCommits } from "./controllers/getTopCommits";
 import { getSummaryObject } from "./controllers/getSummaryObject";
@@ -14,7 +20,7 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.use("/*", cors());
 
 //Routes
-app.get("/",  async(c) => {
+app.get("/", async (c) => {
     // console.log(`initial env`,c.env);
 
     // <------------------------Initial Commiter Launchpad------------------------------------->
@@ -23,7 +29,7 @@ app.get("/",  async(c) => {
 
     // const gettingAllCommitsInfo: GithubGoodResponseType | GithubBadResponseType = await getGithubRepoInfo(
     //     c.env.SHARIF_USERNAME,
-    //     c.env.SHARIF_REPONAME, 
+    //     c.env.SHARIF_REPONAME,
     //     c.env.SHARIF_PAT,
     // );
     // // getTopCommits({...gettingAllCommitsInfo})
@@ -51,30 +57,27 @@ app.get("/",  async(c) => {
     // <==========================Don't Touch Above this======================================>
 
     try {
-        const envsOfUsers=[
+        const envsOfUsers = [
             {
-                USERNAME:c.env.SHARIF_USERNAME,
-                ALLREPOS:c.env.SHARIF_REPONAMES,
-                PAT:c.env.SHARIF_PAT
-            }
-        ]
+                USERNAME: c.env.SHARIF_USERNAME,
+                ALLREPOS: c.env.SHARIF_REPONAMES,
+                PAT: c.env.SHARIF_PAT,
+            },
+        ];
 
         const allCommitsDataOfAllUsers = await Promise.all(
-        envsOfUsers.map(async (eachUserInfo) => {
-            const getAllCommitInfoPerUser: FinalUserCommitsData_Summary = await commitLaunchpad(
-            eachUserInfo
-            );
-            return getAllCommitInfoPerUser;
-        })
+            envsOfUsers.map(async (eachUserInfo) => {
+                const getAllCommitInfoPerUser: FinalUserCommitsData_Summary =
+                    await commitLaunchpad(eachUserInfo);
+                return getAllCommitInfoPerUser;
+            }),
         );
 
         return c.json(allCommitsDataOfAllUsers);
-        
     } catch (error) {
-          console.error("Error fetching commits:", error);
+        console.error("Error fetching commits:", error);
         return c.json({ statusCode: 500, message: "Failed to fetch commits" }, 500);
     }
-
 });
 
 app.notFound((c) => {

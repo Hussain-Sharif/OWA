@@ -44,10 +44,11 @@ export const getRepoFileExtraInfo = async (
 ) => {
     // console.log("getRepoFileExtraInfo START:", repoCommitShas);
 
-    const allResponses:ExtraInfoGoodResponseCommit[]|GithubBadResponseType[] = await Promise.all(
+    const allResponses: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] = await Promise.all(
         repoCommitShas.map(async (eachCommitSha: string) => {
             // console.log("Fetching commit:", eachCommitSha);
-            const res:ExtraInfoGoodResponseCommit|GithubBadResponseType = await fetchExtraInfoPerCommit(userName, repoName, pat, eachCommitSha);
+            const res: ExtraInfoGoodResponseCommit | GithubBadResponseType =
+                await fetchExtraInfoPerCommit(userName, repoName, pat, eachCommitSha);
             // console.log("Fetched commit:", eachCommitSha, res?.statusCode);
             return res;
         }),

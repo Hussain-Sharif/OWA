@@ -1,9 +1,14 @@
-import { EachCommit, EachFileOnCommit, ExtraInfoGoodResponseCommit, GithubBadResponseType, GithubGoodResponseType } from "../libs/types";
+import {
+    EachCommit,
+    EachFileOnCommit,
+    ExtraInfoGoodResponseCommit,
+    GithubBadResponseType,
+    GithubGoodResponseType,
+} from "../libs/types";
 import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
 import { isSameDay, isToday } from "date-fns";
 
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
-  
     // console.log("inside getTodaysCommits");
     // const targetDate = new Date("2025-09-19"); //Used for Testing
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
@@ -13,55 +18,52 @@ export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
     });
 };
 
-
-
-export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] ) => {
-
-    const allExtraInfoGoodCommits=allExtraInfocommits as ExtraInfoGoodResponseCommit[]
+export const formattedCommits = (
+    allExtraInfocommits: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[],
+) => {
+    const allExtraInfoGoodCommits = allExtraInfocommits as ExtraInfoGoodResponseCommit[];
 
     // console.log("Formatting Commits length:",allExtraInfoGoodCommits.length)
 
-    const authorName=allExtraInfoGoodCommits[0]?.data?.author?.login
-    
-    const listOfFormattedCommitData=allExtraInfoGoodCommits?.map((eachExtraInfoCommit: ExtraInfoGoodResponseCommit) => {
-        
-        // Fix Time and Date:
-        const commitTimeDate=eachExtraInfoCommit.data.commit.committer.date
-        const formatedTimeDate=new Date(commitTimeDate).toLocaleString()
+    const authorName = allExtraInfoGoodCommits[0]?.data?.author?.login;
 
-        // get commit Message:
-        const eachCommitMessage=eachExtraInfoCommit.data.commit.message
+    const listOfFormattedCommitData = allExtraInfoGoodCommits?.map(
+        (eachExtraInfoCommit: ExtraInfoGoodResponseCommit) => {
+            // Fix Time and Date:
+            const commitTimeDate = eachExtraInfoCommit.data.commit.committer.date;
+            const formatedTimeDate = new Date(commitTimeDate).toLocaleString();
 
-        // get files:
-        let eachCommitFiles=eachExtraInfoCommit.data.files.map((eachFile: EachFileOnCommit) => {  
+            // get commit Message:
+            const eachCommitMessage = eachExtraInfoCommit.data.commit.message;
+
+            // get files:
+            let eachCommitFiles = eachExtraInfoCommit.data.files.map(
+                (eachFile: EachFileOnCommit) => {
+                    return {
+                        fileName: eachFile.filename,
+                        status: eachFile.status,
+                        fileUrl: eachFile.blob_url,
+                    };
+                },
+            );
+
+            // remove ./obsidian files
+            eachCommitFiles = eachCommitFiles.filter((eachFile) => {
+                return !eachFile.fileName.includes(".obsidian");
+            });
+
             return {
-                fileName: eachFile.filename,
-                status:eachFile.status,
-                fileUrl:eachFile.blob_url
-            }
-        })
-
-        // remove ./obsidian files
-        eachCommitFiles=eachCommitFiles.filter((eachFile)=>{
-            return !eachFile.fileName.includes('.obsidian')
-        })
-
-       
-
-        return {
-            eachCommitDateTime:formatedTimeDate,
-            eachCommitMessage,
-            eachCommitFiles
-        }
-    })
-
-
+                eachCommitDateTime: formatedTimeDate,
+                eachCommitMessage,
+                eachCommitFiles,
+            };
+        },
+    );
 
     return {
         authorName,
-        listOfFormattedCommitData
-    }
-    
+        listOfFormattedCommitData,
+    };
 };
 
 export const getTopCommits = async (
@@ -88,7 +90,7 @@ export const getTopCommits = async (
         if (filteredData.length === 0) {
             return {
                 statusCode: 200,
-                message: "No Commits Today Made"
+                message: "No Commits Today Made",
             };
         }
 
@@ -100,12 +102,15 @@ export const getTopCommits = async (
         });
 
         // console.log("Called getRepoFileExtraInfo");
-        const extraInfo:ExtraInfoGoodResponseCommit[]|GithubBadResponseType[]  = await getRepoFileExtraInfo(userName, repoName, pat, listOfCommitShas);
+        const extraInfo: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] =
+            await getRepoFileExtraInfo(userName, repoName, pat, listOfCommitShas);
         // console.log("getRepoFileExtraInfo:", extraInfo);
 
-        const gotAtleastOneBadResponse = extraInfo.some((eachCommitObj: ExtraInfoGoodResponseCommit|GithubBadResponseType) => {
-            return "statusCode" in eachCommitObj && eachCommitObj.statusCode !== 200;
-        });
+        const gotAtleastOneBadResponse = extraInfo.some(
+            (eachCommitObj: ExtraInfoGoodResponseCommit | GithubBadResponseType) => {
+                return "statusCode" in eachCommitObj && eachCommitObj.statusCode !== 200;
+            },
+        );
 
         if (gotAtleastOneBadResponse) {
             return {
@@ -121,7 +126,7 @@ export const getTopCommits = async (
         return {
             statusCode: 200,
             message: "Commits Retrieved",
-            formattedData
+            formattedData,
         };
     }
     return repoRepsponse;
