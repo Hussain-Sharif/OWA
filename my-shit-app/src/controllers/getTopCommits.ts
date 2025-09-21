@@ -5,11 +5,11 @@ import { isSameDay, isToday } from "date-fns";
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
   
     // console.log("inside getTodaysCommits");
-    const targetDate = new Date("2025-09-19");
+    // const targetDate = new Date("2025-09-19"); //Used for Testing
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDate = new Date(eachCommitObj.commit.committer.date);
-        // return isToday(commitDate);
-        return isSameDay(commitDate,targetDate)
+        return isToday(commitDate);
+        // return isSameDay(commitDate,targetDate) //Used for Testing
     });
 };
 
@@ -19,20 +19,8 @@ export const formattedCommits = (allExtraInfocommits: ExtraInfoGoodResponseCommi
 
     const allExtraInfoGoodCommits=allExtraInfocommits as ExtraInfoGoodResponseCommit[]
 
-    console.log("Formatting Commits length:",allExtraInfoGoodCommits.length)
+    // console.log("Formatting Commits length:",allExtraInfoGoodCommits.length)
 
-    const messageTemplate = `
-        By userName
-
-        Time:
-        Commit Message:
-        Files:
-        (Created) fileName,
-        (Updated) fileName,
-        (Deleted) fileName,
-        <---------------------->
-    `;
-    
     const authorName=allExtraInfoGoodCommits[0]?.data?.author?.login
     
     const listOfFormattedCommitData=allExtraInfoGoodCommits?.map((eachExtraInfoCommit: ExtraInfoGoodResponseCommit) => {

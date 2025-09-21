@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { getGithubRepoInfo } from "./controllers/getGithubRepoInfo";
-import { Bindings, FinalIndividualCommitResponse, GithubBadResponseType, GithubGoodResponseType } from "./libs/types";
+import { Bindings, FinalIndividualCommitResponse, FinalUserCommitsData_Summary, GithubBadResponseType, GithubGoodResponseType } from "./libs/types";
 import { StatusCode } from "hono/utils/http-status";
 import { getTopCommits } from "./controllers/getTopCommits";
 import { getSummaryObject } from "./controllers/getSummaryObject";
+import commitLaunchpad from "./controllers/commiterLaunchpad";
 
 //CONFIG AND APP readiness
 const app = new Hono<{ Bindings: Bindings }>();
@@ -13,35 +14,67 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.use("/*", cors());
 
 //Routes
-app.get("/", async (c) => {
-    // console.log(c.env);
+app.get("/",  async(c) => {
+    // console.log(`initial env`,c.env);
 
-    const sharifResponse: GithubGoodResponseType | GithubBadResponseType = await getGithubRepoInfo(
-        c.env.SHARIF_USERNAME,
-        c.env.SHARIF_REPONAME, 
-        c.env.SHARIF_PAT,
-    );
-    // getTopCommits({...sharifResponse})
-    const finalSharifResponse:FinalIndividualCommitResponse | GithubBadResponseType = await getTopCommits(
-        c.env.SHARIF_USERNAME,
-        c.env.SHARIF_REPONAME,
-        c.env.SHARIF_PAT,
-        {
-            ...sharifResponse,
-        },
-    );
-    if( finalSharifResponse.statusCode !== 200 || false===("formattedData" in finalSharifResponse)){
-        c.status(finalSharifResponse.statusCode as StatusCode);
-        return c.json(finalSharifResponse);
+    // <------------------------Initial Commiter Launchpad------------------------------------->
+
+    // <==========================Don't Touch Below this======================================>
+
+    // const gettingAllCommitsInfo: GithubGoodResponseType | GithubBadResponseType = await getGithubRepoInfo(
+    //     c.env.SHARIF_USERNAME,
+    //     c.env.SHARIF_REPONAME, 
+    //     c.env.SHARIF_PAT,
+    // );
+    // // getTopCommits({...gettingAllCommitsInfo})
+    // const getAllTopProperCommitsInfo:FinalIndividualCommitResponse | GithubBadResponseType = await getTopCommits(
+    //     c.env.SHARIF_USERNAME,
+    //     c.env.SHARIF_REPONAME,
+    //     c.env.SHARIF_PAT,
+    //     {
+    //         ...gettingAllCommitsInfo,
+    //     },
+    // );
+    // if( getAllTopProperCommitsInfo.statusCode !== 200 || false===("formattedData" in getAllTopProperCommitsInfo)){
+    //     c.status(getAllTopProperCommitsInfo.statusCode as StatusCode);
+    //     return c.json(getAllTopProperCommitsInfo);
+    // }
+
+    // const finalGoodResponse= getAllTopProperCommitsInfo as FinalIndividualCommitResponse
+
+    // const newformattedSummaryData=getSummaryObject(finalGoodResponse.formattedData);
+
+    // const USERNAME=c.env.SHARIF_USERNAME
+    // const AllREPOS=c.env.SHARIF_REPONAMES
+    // const PAT=c.env.SHARIF_PAT
+    // const eachUserInfo={USERNAME,AllREPOS,PAT}
+    // <==========================Don't Touch Above this======================================>
+
+    try {
+        const envsOfUsers=[
+            {
+                USERNAME:c.env.SHARIF_USERNAME,
+                ALLREPOS:c.env.SHARIF_REPONAMES,
+                PAT:c.env.SHARIF_PAT
+            }
+        ]
+
+        const allCommitsDataOfAllUsers = await Promise.all(
+        envsOfUsers.map(async (eachUserInfo) => {
+            const getAllCommitInfoPerUser: FinalUserCommitsData_Summary = await commitLaunchpad(
+            eachUserInfo
+            );
+            return getAllCommitInfoPerUser;
+        })
+        );
+
+        return c.json(allCommitsDataOfAllUsers);
+        
+    } catch (error) {
+          console.error("Error fetching commits:", error);
+        return c.json({ statusCode: 500, message: "Failed to fetch commits" }, 500);
     }
 
-    const finalGoodResponse= finalSharifResponse as FinalIndividualCommitResponse
-
-    const newformattedSummaryData=getSummaryObject(finalGoodResponse.formattedData);
-    // console.log(newformattedSummaryData)
-    c.status(sharifResponse.statusCode as StatusCode);
-    return c.json({newformattedSummaryData});
-    // return c.json({finalSharifResponse});
 });
 
 app.notFound((c) => {

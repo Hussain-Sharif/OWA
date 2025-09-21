@@ -1,4 +1,5 @@
 export const getGithubRepoInfo = async (userName: string, repoName: string, pat: string) => {
+    // console.log(`inside getGithubRepoInfo Function ALL VALUES=> `,userName,repoName,pat)
     try {
         const urlPath = `https://api.github.com/repos/${userName}/${repoName}/commits`;
         const response = await fetch(urlPath, {

@@ -1,4 +1,10 @@
 // Type for one GitHub Commit (from /repos/:owner/:repo/commits API)
+
+// <--------------------Commits Level Types------------------------>
+
+// All possible statuses
+export type FileStatus = "renamed" | "modified" | "created" | "deleted";
+
 export type EachCommit = {
     sha: string;
     node_id: string;
@@ -94,7 +100,7 @@ export type ExtraInfoGoodResponseCommit =  {
     files:{
         sha:string,
         filename:string,
-        status:string,
+        status:FileStatus,
         additions:number,
         deletions:number,
         changes:number,
@@ -118,7 +124,7 @@ export type FormattedData={
                 eachCommitFiles: 
                     {
                         fileName: string,
-                        status: string,
+                        status: FileStatus,
                         fileUrl: string
                     }[],
                 
@@ -142,9 +148,74 @@ export type GithubBadResponseType = {
     message: string;
 };
 
+export interface EachFilePerCommitInfo_Summary{
+    fileName:string,
+    fileRemainingInfo:{
+        fileStatus:FileStatus,
+        fileUrl:string,
+        fileCommitDateTime:string,
+        fileCommitMessage:string
+    }
+}
+
+export interface FilteredCommitFileInfo_Summary {
+  fileStatus: "renamed" | "modified" | "created";  // literal union
+  fileUrl: string;
+  fileCommitDateTime: string; // keep as string, can parse later into Date
+  fileCommitMessage: string;
+  fileName: string;
+}
+export interface CommitsObject_Summary {
+  renamed: FilteredCommitFileInfo_Summary[];
+  modified: FilteredCommitFileInfo_Summary[];
+  created: FilteredCommitFileInfo_Summary[];
+}
+
+export interface EachRepoCommitInfo_Summary{
+    statusCode: number,
+    repoName:string,
+    commits:CommitsObject_Summary
+}
+
+export type AllSettledRepoOutput_Summary =
+  | {
+      status: "fulfilled";
+      value: EachRepoCommitInfo_Summary|GithubBadResponseType;
+    }
+  | {
+      status: "rejected";
+      reason: any;
+    };
+export type FormattedAllSettledRepoOutput_Summary =(
+    GithubBadResponseType | EachRepoCommitInfo_Summary 
+    | { error: boolean; repo: string; reason: any; })[]
+
+export type FinalUserCommitsData_Summary={
+    statusCode: number,
+    userName: string,
+    allReposPerUser: FormattedAllSettledRepoOutput_Summary
+}
+
+
+//--------------------User/Repo Level Types-------------------------------->
+
+export type EachUserInfo = {
+    USERNAME: string;
+    ALLREPOS: string | string[];
+    PAT: string;
+};
+
+export type EachRepoInfo = {
+    USERNAME: string;
+    REPONAME: string;
+    PAT: string;
+};
+
+//------------------------------------------------------------->
+
 // For Env types
 export type Bindings = {
     SHARIF_USERNAME: string;
-    SHARIF_REPONAME: string;
+    SHARIF_REPONAMES: string;
     SHARIF_PAT: string;
 };

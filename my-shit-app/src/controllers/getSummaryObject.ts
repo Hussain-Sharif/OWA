@@ -1,8 +1,8 @@
-import { ExtraInfoGoodResponseCommit, FormattedData } from "../libs/types";
+import { CommitsObject_Summary, EachFilePerCommitInfo_Summary, ExtraInfoGoodResponseCommit, FormattedData } from "../libs/types";
 import allPossiableFileCommitsTestData from '../Tests/allPossiableFileCommits.tests.json'
 
 
-const finalGroupingBasedOnStatuses=(allPossiableFileCommitsTestData:any)=>{
+const finalGroupingBasedOnStatuses=(allPossiableFileCommitsTestData:EachFilePerCommitInfo_Summary[])=>{
     const filteringMap=new Map()
 
     allPossiableFileCommitsTestData.forEach((eachFileData: { fileName: string; fileRemainingInfo: { fileStatus: string; fileUrl: string; fileCommitDateTime: string; fileCommitMessage: string; }; }) => {
@@ -85,7 +85,7 @@ const finalGroupingBasedOnStatuses=(allPossiableFileCommitsTestData:any)=>{
     }
     }
 
-    console.log(Object.fromEntries(categorizedMap))
+    // console.log(Object.fromEntries(categorizedMap))
 
     return Object.fromEntries(categorizedMap)
 
@@ -93,10 +93,10 @@ const finalGroupingBasedOnStatuses=(allPossiableFileCommitsTestData:any)=>{
 }
 
 export const getSummaryObject=(formattedData:FormattedData)=>{
-     const fileAndRemObj=formattedData.listOfFormattedCommitData.flatMap((acc)=>{
+     const fileAndRemObj:EachFilePerCommitInfo_Summary[]=formattedData.listOfFormattedCommitData.flatMap((acc)=>{
         
         const getAllFiles=(eachCommit:FormattedData["listOfFormattedCommitData"][0])=>{
-           const result=eachCommit.eachCommitFiles.map(eachFile=>{
+           const result=eachCommit.eachCommitFiles.map((eachFile):EachFilePerCommitInfo_Summary=>{
             return {
                 fileName:eachFile.fileName,
                 fileRemainingInfo:{
@@ -110,12 +110,17 @@ export const getSummaryObject=(formattedData:FormattedData)=>{
             return [...result]
         }
 
-        const dataReFormatted=getAllFiles(acc)
+        const dataReFormatted:EachFilePerCommitInfo_Summary[]=getAllFiles(acc)
         return dataReFormatted
          
      })
 
-     const result=finalGroupingBasedOnStatuses(allPossiableFileCommitsTestData)
+     // For Testing purposes Using JSON Data to Filter the things
+    //  console.log(fileAndRemObj)
 
-     return {fileAndRemObj,result}
+     const result:CommitsObject_Summary=finalGroupingBasedOnStatuses(fileAndRemObj)
+
+    //  console.log(result)
+
+     return result
 }
