@@ -1,27 +1,43 @@
-const format_to_text =  (allCommitsDataOfAllUsers: any) => {
+const format_to_text = (allCommitsDataOfAllUsers: any) => {
+    console.log("inside func");
     const result = allCommitsDataOfAllUsers.map((data: any) => {
         let name = data["userName"];
-
+        // console.log("inside m1")
         const commit_message = data.allReposPerUser.map((eachrepo: any) => {
-            let reponame = eachrepo.repoName;
-
-            if(eachrepo?.commits===undefined){
+            if (eachrepo?.commits === undefined) {
                 return `\n${eachrepo.message}`;
             }
-            
-            return `\n\nrenamed:\n${eachrepo.commits.renamed.map(
-                (eachrenamedfile: any, i: number) => {
-                    return `${i + 1}. ${reponame}/${eachrenamedfile.fileName} - ${eachrenamedfile.fileUrl}\n`;
-                }
-            )}<=====>\n\nadded:\n${eachrepo.commits.added.map((eachaddedfile: any, i: number) => {
-                return `${i + 1}. ${reponame}/${eachaddedfile.fileName} - ${eachaddedfile.fileCommitMessage}\n${eachaddedfile.fileUrl}\n`;
-            })}<=====>\n\nmodified:\n${eachrepo.commits.modified.map(
-                (eachmodifiedfile: any, i: number) => {
-                    return `${i + 1}. ${reponame}/${eachmodifiedfile.fileName} - ${eachmodifiedfile.fileCommitMessage}\n${eachmodifiedfile.fileUrl}\n`;
-                }
-            )}`;
+            // console.log("inside m2")
+            let reponame = eachrepo.repoName;
+
+            return `${
+                eachrepo.commits?.renamed
+                    ? `\nRenamed:${eachrepo.commits.renamed.map(
+                          (eachrenamedfile: any, i: number) => {
+                              // console.log("inside m11")
+                              return `\n${i + 1}. ${reponame}/${eachrenamedfile.fileName} - ${eachrenamedfile.fileUrl}`;
+                          },
+                      )}\n`
+                    : ""
+            }${
+                eachrepo.commits?.added
+                    ? `\nAdded:${eachrepo.commits.added.map((eachaddedfile: any, i: number) => {
+                          // console.log("inside m12")
+                          return `\n${i + 1}. ${reponame}/${eachaddedfile.fileName}\n${eachaddedfile.fileUrl}`;
+                      })}\n`
+                    : ""
+            }${
+                eachrepo.commits?.modified
+                    ? `\nModified:${eachrepo.commits.modified.map(
+                          (eachmodifiedfile: any, i: number) => {
+                              // console.log("inside m13")
+                              return `\n${i + 1}. ${reponame}/${eachmodifiedfile.fileName} - ${eachmodifiedfile.fileCommitMessage}\n${eachmodifiedfile.fileUrl}`;
+                          }
+                      )}\n`
+                    : ""
+            }`;
         });
-        return `${name}\n${commit_message}`;
+        return `${name.toUpperCase()}\n${commit_message}\n\n`;
     });
 
     console.log(result);

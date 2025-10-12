@@ -78,13 +78,15 @@ app.get("/", async (c) => {
                 return getAllCommitInfoPerUser;
             }),
         );
-        // const message =  format_to_text(allCommitsDataOfAllUsers);
-        // await sendWhatsAppMessage(message);
-        // return c.json({data:allCommitsDataOfAllUsers,message:message});
-        return c.json(allCommitsDataOfAllUsers);
+        const message = format_to_text(allCommitsDataOfAllUsers);
+        await sendWhatsAppMessage(message);
+        return c.json({ data: allCommitsDataOfAllUsers, message: message });
+        // return c.json(allCommitsDataOfAllUsers);
     } catch (error) {
         console.error("Error fetching commits:", error);
-         await sendWhatsAppMessage(`Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`);
+        await sendWhatsAppMessage(
+            `Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`,
+        );
         return c.json({ statusCode: 500, message: "Failed to fetch commits" }, 500);
     }
 });
