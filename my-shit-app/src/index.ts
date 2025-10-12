@@ -12,7 +12,8 @@ import { StatusCode } from "hono/utils/http-status";
 import { getTopCommits } from "./controllers/getTopCommits";
 import { getSummaryObject } from "./controllers/getSummaryObject";
 import commitLaunchpad from "./controllers/commiterLaunchpad";
-
+import { sendWhatsAppMessage } from "./libs/sendmessage";
+import format_to_text from "./libs/format_to_text";
 //CONFIG AND APP readiness
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -72,7 +73,8 @@ app.get("/", async (c) => {
                 return getAllCommitInfoPerUser;
             }),
         );
-
+        const message = await format_to_text(allCommitsDataOfAllUsers);
+        await sendWhatsAppMessage(message);
         return c.json(allCommitsDataOfAllUsers);
     } catch (error) {
         console.error("Error fetching commits:", error);

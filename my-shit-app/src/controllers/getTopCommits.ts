@@ -6,14 +6,14 @@ import {
     GithubGoodResponseType,
 } from "../libs/types";
 import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
-import { isSameDay, isToday } from "date-fns";
+import { isSameDay, isToday, isAfter } from "date-fns";
 
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
     // console.log("inside getTodaysCommits");
     // const targetDate = new Date("2025-09-19"); //Used for Testing
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDate = new Date(eachCommitObj.commit.committer.date);
-        return isToday(commitDate);
+        return isAfter(commitDate, new Date("2025-09-20"));
         // return isSameDay(commitDate,targetDate) //Used for Testing
     });
 };
