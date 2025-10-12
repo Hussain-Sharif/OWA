@@ -215,4 +215,7 @@ export type Bindings = {
     SHARIF_USERNAME: string;
     SHARIF_REPONAMES: string;
     SHARIF_PAT: string;
+    SADIQ_USERNAME: string;
+    SADIQ_REPONAMES: string;
+    SADIQ_PAT: string;
 };

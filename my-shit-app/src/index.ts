@@ -64,6 +64,11 @@ app.get("/", async (c) => {
                 ALLREPOS: c.env.SHARIF_REPONAMES,
                 PAT: c.env.SHARIF_PAT,
             },
+            {
+                USERNAME: c.env.SADIQ_USERNAME,
+                ALLREPOS: c.env.SADIQ_REPONAMES,
+                PAT: c.env.SADIQ_PAT,
+            },
         ];
 
         const allCommitsDataOfAllUsers = await Promise.all(
@@ -73,11 +78,13 @@ app.get("/", async (c) => {
                 return getAllCommitInfoPerUser;
             }),
         );
-        const message = await format_to_text(allCommitsDataOfAllUsers);
-        await sendWhatsAppMessage(message);
+        // const message =  format_to_text(allCommitsDataOfAllUsers);
+        // await sendWhatsAppMessage(message);
+        // return c.json({data:allCommitsDataOfAllUsers,message:message});
         return c.json(allCommitsDataOfAllUsers);
     } catch (error) {
         console.error("Error fetching commits:", error);
+         await sendWhatsAppMessage(`Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`);
         return c.json({ statusCode: 500, message: "Failed to fetch commits" }, 500);
     }
 });

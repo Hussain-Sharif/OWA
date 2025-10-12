@@ -13,7 +13,8 @@ export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
     // const targetDate = new Date("2025-09-19"); //Used for Testing
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDate = new Date(eachCommitObj.commit.committer.date);
-        return isAfter(commitDate, new Date("2025-09-20"));
+        // return isAfter(commitDate, new Date("2025-09-20"));
+        return isToday(commitDate);
         // return isSameDay(commitDate,targetDate) //Used for Testing
     });
 };

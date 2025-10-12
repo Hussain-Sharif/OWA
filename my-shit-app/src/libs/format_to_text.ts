@@ -1,9 +1,14 @@
-const format_to_text = async (allCommitsDataOfAllUsers: any) => {
+const format_to_text =  (allCommitsDataOfAllUsers: any) => {
     const result = allCommitsDataOfAllUsers.map((data: any) => {
         let name = data["userName"];
+
         const commit_message = data.allReposPerUser.map((eachrepo: any) => {
             let reponame = eachrepo.repoName;
 
+            if(eachrepo?.commits===undefined){
+                return `\n${eachrepo.message}`;
+            }
+            
             return `\n\nrenamed:\n${eachrepo.commits.renamed.map(
                 (eachrenamedfile: any, i: number) => {
                     return `${i + 1}. ${reponame}/${eachrenamedfile.fileName} - ${eachrenamedfile.fileUrl}\n`;
