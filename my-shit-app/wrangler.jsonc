@@ -5,16 +5,16 @@
   "compatibility_date": "2025-09-07",
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
+  "kv_namespaces": [
+    {
+      "binding": "URL_SHORTENER",
+      "id": "bec268b6ebe04d09b4c947ab134ea58a"
+    }
+  ]
   // "r2_buckets": [
   //   {
   //     "binding": "MY_BUCKET",

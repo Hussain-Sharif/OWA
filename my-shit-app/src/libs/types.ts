@@ -1,3 +1,4 @@
+
 // Type for one GitHub Commit (from /repos/:owner/:repo/commits API)
 
 // <--------------------Commits Level Types------------------------>
@@ -218,4 +219,7 @@ export type Bindings = {
     SADIQ_USERNAME: string;
     SADIQ_REPONAMES: string;
     SADIQ_PAT: string;
+
+    // Adding KV binding
+    URL_SHORTENER: KVNamespace;
 };
