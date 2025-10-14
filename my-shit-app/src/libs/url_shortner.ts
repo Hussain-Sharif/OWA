@@ -1,12 +1,12 @@
 import { Bindings } from './types';
 
 // Base62 encoding for shorter URLs
-const BASE62_CHARS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const BASE36_CHARS = '0123456789abcdefghijklmnopqrstuvwxyz';
 
 function generateShortId(): string {
   let result = '';
   for (let i = 0; i < 6; i++) {
-    result += BASE62_CHARS[Math.floor(Math.random() * BASE62_CHARS.length)];
+    result += BASE36_CHARS[Math.floor(Math.random() * BASE36_CHARS.length)];
   }
   return result;
 }
