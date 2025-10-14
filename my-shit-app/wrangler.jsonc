@@ -12,7 +12,8 @@
   "kv_namespaces": [
     {
       "binding": "URL_SHORTENER",
-      "id": "bec268b6ebe04d09b4c947ab134ea58a"
+      "id": "bec268b6ebe04d09b4c947ab134ea58a",
+      "preview_id": "98478e88be864e7bb4a85a94a5cf2c58"
     }
   ]
   // "r2_buckets": [

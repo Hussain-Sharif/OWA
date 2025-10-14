@@ -1,4 +1,11 @@
-const format_to_text = (allCommitsDataOfAllUsers: any) => {
+import { Bindings } from "./types";
+import { extractGitHubUrls, replaceUrlsInText, shortenUrlsBatch } from "./url_shortner";
+
+const format_to_text = async(
+    allCommitsDataOfAllUsers: any,
+      env: Bindings,
+  baseUrl: string
+) => {
     console.log("inside func");
     const result = allCommitsDataOfAllUsers.map((data: any) => {
         let name = data["userName"];
@@ -40,8 +47,20 @@ const format_to_text = (allCommitsDataOfAllUsers: any) => {
         return `${name.toUpperCase()}\n${commit_message}\n\n`;
     });
 
-    console.log(result);
-    const message = `${result}`;
+    // console.log(result);
+    let message = `${result}`;
+
+    if (env && baseUrl) {
+         const githubUrls = extractGitHubUrls(message);
+    
+    if (githubUrls.length > 0) {
+        console.log(`Shortening ${githubUrls.length} URLs...`);
+        const urlMap = await shortenUrlsBatch(githubUrls, env, baseUrl);
+        message = replaceUrlsInText(message, urlMap);
+        console.log(`URLs shortened successfully`);
+    }
+  }
+
     return message;
 };
 
