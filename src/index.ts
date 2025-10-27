@@ -5,6 +5,7 @@ import commitLaunchpad from "./controllers/commiterLaunchpad";
 import format_to_text from "./libs/format_to_text";
 import { sendWhatsAppMessage } from "./libs/sendmessage";
 import type { Bindings, FinalUserCommitsData_Summary } from "./libs/types";
+import { parseGitHubUsers } from "./libs/types";
 import { resolveShortUrl } from "./libs/url_shortner";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -12,23 +13,12 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.use("/*", cors());
 
 async function processCommits(env: Bindings, baseUrl: string) {
-    const envsOfUsers = [
-        {
-            USERNAME: env.SHARIF_USERNAME,
-            ALLREPOS: env.SHARIF_REPONAMES,
-            PAT: env.SHARIF_PAT,
-        },
-        {
-            USERNAME: env.SADIQ_USERNAME,
-            ALLREPOS: env.SADIQ_REPONAMES,
-            PAT: env.SADIQ_PAT,
-        },
-        {
-            USERNAME: env.SANJAY_USERNAME,
-            ALLREPOS: env.SANJAY_REPONAMES,
-            PAT: env.SANJAY_PAT,
-        },
-    ].filter((user) => user.USERNAME && user.ALLREPOS && user.PAT);
+    const githubUsers = parseGitHubUsers(env.GITHUB_USERS);
+    const envsOfUsers = githubUsers.map((user) => ({
+        USERNAME: user.username,
+        ALLREPOS: JSON.stringify(user.repositories),
+        PAT: user.pat,
+    }));
 
     const allCommitsDataOfAllUsers = await Promise.all(
         envsOfUsers.map(async (eachUserInfo) => {

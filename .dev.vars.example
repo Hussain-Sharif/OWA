@@ -1,0 +1,36 @@
+# Environment Configuration
+# Set to "development" for local dev, "production" for deployed worker
+ENVIRONMENT=development
+
+# Worker URL
+# Local: http://localhost:8787
+# Production: https://your-worker.your-subdomain.workers.dev
+WORKER_URL=http://localhost:8787
+
+# WhatsApp Green API Configuration
+# Get your instance from: https://green-api.com/
+# Format: https://INSTANCE_ID.api.green-api.com/waInstanceXXXXXXXXXX/sendMessage/YOUR_TOKEN
+BOT_GREEN_API_URL=https://YOUR_INSTANCE.api.green-api.com/waInstanceXXXXXXXXXX/sendMessage/YOUR_TOKEN
+
+# GitHub Users Configuration (REQUIRED - must be valid JSON on a single line)
+# 
+# Each user object MUST have:
+# ✓ username     (string)  - GitHub username
+# ✓ repositories (string[]) - Array of repository names (at least 1)
+# ✓ pat          (string)  - GitHub Personal Access Token
+#
+# Get your PAT from: https://github.com/settings/tokens
+# Required scopes: repo (or public_repo for public repos only)
+#
+# ⚠️  IMPORTANT: Must be valid JSON on a single line!
+# ⚠️  Use double quotes ("), not single quotes (')
+# ⚠️  No trailing commas
+#
+# Single user example:
+# GITHUB_USERS=[{"username":"octocat","repositories":["Hello-World","Spoon-Knife"],"pat":"ghp_YourTokenHere"}]
+#
+# Multiple users example:
+# GITHUB_USERS=[{"username":"user1","repositories":["repo1","repo2"],"pat":"ghp_token1"},{"username":"user2","repositories":["repo3"],"pat":"ghp_token2"}]
+#
+# Replace this with your configuration:
+GITHUB_USERS=[{"username":"YOUR_GITHUB_USERNAME","repositories":["YOUR_REPO_NAME"],"pat":"ghp_YOUR_PERSONAL_ACCESS_TOKEN"}]

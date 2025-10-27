@@ -201,19 +201,87 @@ export type EachRepoInfo = {
     PAT: string;
 };
 
-export type Bindings = {
-    ENVIRONMENT: string;
-    SHARIF_USERNAME: string;
-    SHARIF_REPONAMES: string;
-    SHARIF_PAT: string;
-    SADIQ_USERNAME: string;
-    SADIQ_REPONAMES: string;
-    SADIQ_PAT: string;
-    SANJAY_USERNAME: string;
-    SANJAY_REPONAMES: string;
-    SANJAY_PAT: string;
+export type GitHubUser = {
+    username: string;
+    repositories: string[];
+    pat: string;
+};
 
+export type Bindings = {
+    ENVIRONMENT: "development" | "production";
+    GITHUB_USERS: string; // JSON string of GitHubUser[]
     URL_SHORTENER: KVNamespace;
     BOT_GREEN_API_URL: string;
     WORKER_URL: string;
 };
+
+function isGitHubUser(obj: unknown): obj is GitHubUser {
+    if (!obj || typeof obj !== "object") return false;
+    const user = obj as Record<string, unknown>;
+
+    return (
+        typeof user.username === "string" &&
+        user.username.length > 0 &&
+        Array.isArray(user.repositories) &&
+        user.repositories.length > 0 &&
+        user.repositories.every((r) => typeof r === "string") &&
+        typeof user.pat === "string" &&
+        user.pat.length > 0
+    );
+}
+
+export function parseGitHubUsers(jsonString: string): GitHubUser[] {
+    if (!jsonString || jsonString.trim() === "") {
+        throw new Error("GITHUB_USERS environment variable is required");
+    }
+
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(jsonString);
+    } catch (error) {
+        throw new Error(
+            `Invalid JSON in GITHUB_USERS: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+    }
+
+    if (!Array.isArray(parsed)) {
+        throw new Error("GITHUB_USERS must be a JSON array");
+    }
+
+    if (parsed.length === 0) {
+        throw new Error("GITHUB_USERS array cannot be empty");
+    }
+
+    const validUsers: GitHubUser[] = [];
+    const errors: string[] = [];
+
+    parsed.forEach((item, index) => {
+        if (!isGitHubUser(item)) {
+            const user = item as Record<string, unknown>;
+            const issues: string[] = [];
+
+            if (!user || typeof user !== "object") {
+                issues.push("not an object");
+            } else {
+                if (!user.username || typeof user.username !== "string") {
+                    issues.push("missing or invalid 'username'");
+                }
+                if (!Array.isArray(user.repositories) || user.repositories.length === 0) {
+                    issues.push("missing or empty 'repositories' array");
+                }
+                if (!user.pat || typeof user.pat !== "string") {
+                    issues.push("missing or invalid 'pat'");
+                }
+            }
+
+            errors.push(`User at index ${index}: ${issues.join(", ")}`);
+        } else {
+            validUsers.push(item);
+        }
+    });
+
+    if (errors.length > 0) {
+        throw new Error(`Invalid GITHUB_USERS configuration:\n${errors.join("\n")}`);
+    }
+    return validUsers;
+}
