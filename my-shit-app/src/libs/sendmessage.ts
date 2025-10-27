@@ -1,9 +1,9 @@
 // ✅ TypeScript Version
-export async function sendWhatsAppMessage(message: string): Promise<void> {
+export async function sendWhatsAppMessage({message,greenApiUrl}:{message: string,greenApiUrl:string}): Promise<void> {
     const chatId = "120363169536263534@g.us";
-    const apiUrl =
-        "https://7105.api.greenapi.com/waInstance7105341467/sendMessage/d4a457b0df2a45adbf8f1dd0922f9e10d97be7e200bc4dd081";
-
+    // console.log(greenApiUrl)
+    const apiUrl = greenApiUrl;
+    
     const headers = new Headers({
         "User-Agent": "GREEN-API_POSTMAN/1.0",
         "Content-Type": "application/json",

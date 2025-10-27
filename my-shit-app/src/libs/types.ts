@@ -222,4 +222,7 @@ export type Bindings = {
 
     // Adding KV binding
     URL_SHORTENER: KVNamespace;
+
+    // Adding green api url binding
+    BOT_GREEN_API_URL:string
 };

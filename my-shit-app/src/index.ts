@@ -103,8 +103,11 @@ app.get("/", async (c) => {
 
         const result = await format_to_text(allCommitsDataOfAllUsers, c.env, baseUrl);
         
-        
-        await sendWhatsAppMessage(result);
+        // console.log("at end point", c.env.BOT_GREEN_API_URL)
+        await sendWhatsAppMessage({
+            message:result,
+            greenApiUrl: c.env.BOT_GREEN_API_URL
+        });
         
         
         return c.json({ data: allCommitsDataOfAllUsers, result:result });
@@ -112,7 +115,9 @@ app.get("/", async (c) => {
     } catch (error) {
         console.error("Error fetching commits:", error);
         await sendWhatsAppMessage(
-            `Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`,
+          { message: `Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`,
+        greenApiUrl:c.env.BOT_GREEN_API_URL
+        }
         );
         return c.json({ statusCode: 500, message: "Failed to fetch commits" }, 500);
     }
