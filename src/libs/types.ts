@@ -211,7 +211,8 @@ export type Bindings = {
     ENVIRONMENT: "development" | "production";
     GITHUB_USERS: string; // JSON string of GitHubUser[]
     URL_SHORTENER: KVNamespace;
-    BOT_GREEN_API_URL: string;
+    BOT_GREEN_API_URL: string; // https://INSTANCE.api.green-api.com/waInstanceXXX/{method}/TOKEN
+    WHATSAPP_CHAT_ID: string;
     WORKER_URL: string;
 };
 

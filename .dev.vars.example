@@ -9,8 +9,28 @@ WORKER_URL=http://localhost:8787
 
 # WhatsApp Green API Configuration
 # Get your instance from: https://green-api.com/
-# Format: https://INSTANCE_ID.api.green-api.com/waInstanceXXXXXXXXXX/sendMessage/YOUR_TOKEN
-BOT_GREEN_API_URL=https://YOUR_INSTANCE.api.green-api.com/waInstanceXXXXXXXXXX/sendMessage/YOUR_TOKEN
+#
+# URL Template with {method} placeholder
+# The {method} will be automatically replaced with:
+#   - sendMessage (for sending messages)
+#   - readChat (for marking messages as read - lowercase r, capital C!)
+#   - deleteMessage, archiveChat, etc. (for future features)
+#
+# Format: https://INSTANCE_ID.api.green-api.com/waInstanceXXXXXXXXXX/{method}/YOUR_TOKEN
+BOT_GREEN_API_URL=https://YOUR_INSTANCE.api.green-api.com/waInstanceXXXXXXXXXX/{method}/YOUR_TOKEN
+
+# WhatsApp Chat ID
+# The chat where the bot will send messages
+# 
+# Format:
+#   - Personal chat: phoneNumber@c.us (e.g., "1234567890@c.us")
+#   - Group chat: groupId@g.us (e.g., "120363169536263534@g.us")
+#
+# To find your chat ID:
+#   1. Send a message to the chat from your WhatsApp
+#   2. Use Green API's GetChats method to list all chats
+#   3. Find your chat and copy its ID
+WHATSAPP_CHAT_ID=YOUR_CHAT_ID@g.us
 
 # GitHub Users Configuration (REQUIRED - must be valid JSON on a single line)
 # 

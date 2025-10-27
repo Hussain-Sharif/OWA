@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "my-shit-app",
+  "name": "owa",
   "main": "src/index.ts",
   "compatibility_date": "2025-09-07",
   "compatibility_flags": [
