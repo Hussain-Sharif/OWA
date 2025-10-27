@@ -11,60 +11,48 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 app.use("/*", cors());
 
-app.get("/:shortId", async (c) => {
-    const shortId = c.req.param("shortId");
+async function processCommits(env: Bindings, baseUrl: string) {
+    const envsOfUsers = [
+        {
+            USERNAME: env.SHARIF_USERNAME,
+            ALLREPOS: env.SHARIF_REPONAMES,
+            PAT: env.SHARIF_PAT,
+        },
+        {
+            USERNAME: env.SADIQ_USERNAME,
+            ALLREPOS: env.SADIQ_REPONAMES,
+            PAT: env.SADIQ_PAT,
+        },
+        {
+            USERNAME: env.SANJAY_USERNAME,
+            ALLREPOS: env.SANJAY_REPONAMES,
+            PAT: env.SANJAY_PAT,
+        },
+    ].filter((user) => user.USERNAME && user.ALLREPOS && user.PAT);
 
-    try {
-        const originalUrl = await resolveShortUrl(shortId, c.env);
-        if (originalUrl) {
-            return c.redirect(originalUrl, 302);
-        }
+    const allCommitsDataOfAllUsers = await Promise.all(
+        envsOfUsers.map(async (eachUserInfo) => {
+            const getAllCommitInfoPerUser: FinalUserCommitsData_Summary =
+                await commitLaunchpad(eachUserInfo);
+            return getAllCommitInfoPerUser;
+        }),
+    );
 
-        return c.text("Short URL not found", 404);
-    } catch (error) {
-        console.error("Error resolving short URL:", error);
-        return c.text("Error resolving URL", 500);
-    }
-});
+    const result = await format_to_text(allCommitsDataOfAllUsers, env, baseUrl);
+    await sendWhatsAppMessage({
+        message: result,
+        greenApiUrl: env.BOT_GREEN_API_URL,
+    });
+
+    return { data: allCommitsDataOfAllUsers, result };
+}
 
 app.get("/", async (c) => {
     try {
-        const envsOfUsers = [
-            {
-                USERNAME: c.env.SHARIF_USERNAME,
-                ALLREPOS: c.env.SHARIF_REPONAMES,
-                PAT: c.env.SHARIF_PAT,
-            },
-            {
-                USERNAME: c.env.SADIQ_USERNAME,
-                ALLREPOS: c.env.SADIQ_REPONAMES,
-                PAT: c.env.SADIQ_PAT,
-            },
-            {
-                USERNAME: c.env.SANJAY_USERNAME,
-                ALLREPOS: c.env.SANJAY_REPONAMES,
-                PAT: c.env.SANJAY_PAT,
-            },
-        ].filter((user) => user.USERNAME && user.ALLREPOS && user.PAT);
-
-        const allCommitsDataOfAllUsers = await Promise.all(
-            envsOfUsers.map(async (eachUserInfo) => {
-                const getAllCommitInfoPerUser: FinalUserCommitsData_Summary =
-                    await commitLaunchpad(eachUserInfo);
-                return getAllCommitInfoPerUser;
-            }),
-        );
-
         const baseUrl = new URL(c.req.url).origin;
-
-        const result = await format_to_text(allCommitsDataOfAllUsers, c.env, baseUrl);
-        await sendWhatsAppMessage({
-            message: result,
-            greenApiUrl: c.env.BOT_GREEN_API_URL,
-        });
-
-        return c.json({ data: allCommitsDataOfAllUsers, result: result });
-    } catch (error) {
+        const result = await processCommits(c.env, baseUrl);
+        return c.json(result);
+    } catch (error: unknown) {
         console.error("Error fetching commits:", error);
         await sendWhatsAppMessage({
             message: `Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`,
@@ -74,13 +62,61 @@ app.get("/", async (c) => {
     }
 });
 
+// Work only in development
+app.get("/test-cron", async (c) => {
+    if (c.env.ENVIRONMENT !== "development") {
+        return c.text("This endpoint is only available in development", 403);
+    }
+
+    try {
+        console.log("Manual cron trigger via /test-cron endpoint");
+        const baseUrl = new URL(c.req.url).origin;
+        await processCommits(c.env, baseUrl);
+        return c.json({ success: true, message: "Scheduled task completed successfully" });
+    } catch (error: unknown) {
+        console.error("Error in test cron:", error);
+        return c.json({ success: false, error: String(error) }, 500);
+    }
+});
+
+app.get("/:shortId", async (c) => {
+    const shortId = c.req.param("shortId");
+    try {
+        const originalUrl = await resolveShortUrl(shortId, c.env);
+        if (originalUrl) {
+            return c.redirect(originalUrl, 302);
+        }
+        return c.text("Short URL not found", 404);
+    } catch (error) {
+        console.error("Error resolving short URL:", error);
+        return c.text("Error resolving URL", 500);
+    }
+});
+
 app.notFound((c) => {
-    return c.text("Not Found for the path " + c.req.path);
+    return c.text(`Not Found for the path ${c.req.path}`);
 });
 
 app.onError((error, c) => {
     c.status(500);
-    return c.text("Error for the path " + c.req.path + " Error Msg: " + error.message);
+    return c.text(`Error for the path ${c.req.path} Error Msg: ${error.message}`);
 });
 
-export default app;
+export default {
+    fetch: app.fetch,
+    async scheduled(event: ScheduledEvent, env: Bindings, _ctx: ExecutionContext) {
+        console.log("Cron triggered at:", new Date(event.scheduledTime).toISOString());
+        try {
+            const baseUrl =
+                env.ENVIRONMENT === "development" ? "http://localhost:8787" : env.WORKER_URL;
+            await processCommits(env, baseUrl);
+            console.log("Scheduled task completed successfully");
+        } catch (error) {
+            console.error("Error in scheduled task:", error);
+            await sendWhatsAppMessage({
+                message: `Hey Guys,\nIt's me OWA\nScheduled task failed!\nReason:\n${JSON.stringify(error)}`,
+                greenApiUrl: env.BOT_GREEN_API_URL,
+            });
+        }
+    },
+};

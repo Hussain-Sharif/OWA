@@ -202,6 +202,7 @@ export type EachRepoInfo = {
 };
 
 export type Bindings = {
+    ENVIRONMENT: string;
     SHARIF_USERNAME: string;
     SHARIF_REPONAMES: string;
     SHARIF_PAT: string;
@@ -214,4 +215,5 @@ export type Bindings = {
 
     URL_SHORTENER: KVNamespace;
     BOT_GREEN_API_URL: string;
+    WORKER_URL: string;
 };

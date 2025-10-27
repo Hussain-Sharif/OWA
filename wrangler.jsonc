@@ -12,10 +12,15 @@
   "kv_namespaces": [
     {
       "binding": "URL_SHORTENER",
-      "id": "bec268b6ebe04d09b4c947ab134ea58a",
+      "id": "0bdc003485584d109708a40dfb10f838",
       "preview_id": "98478e88be864e7bb4a85a94a5cf2c58"
     }
-  ]
+  ],
+  "triggers": {
+    "crons": [
+      "30 16 * * *"
+    ]
+  }
   // "r2_buckets": [
   //   {
   //     "binding": "MY_BUCKET",

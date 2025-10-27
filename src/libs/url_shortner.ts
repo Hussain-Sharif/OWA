@@ -24,11 +24,11 @@ export async function shortenUrlsBatch(
                 return { url, shortUrl: `${baseUrl}/${existing}` };
             }
 
-            const shortId = generateShortId();
-            const shortUrl = `${baseUrl}/${shortId}`;
+            const uniqueId = generateShortId();
+            const shortUrl = `${baseUrl}/${uniqueId}`;
             await Promise.all([
-                env.URL_SHORTENER.put(shortId, url, { expirationTtl: 86400 * 30 }), // 30 days
-                env.URL_SHORTENER.put(`reverse:${url}`, shortId, { expirationTtl: 86400 * 30 }),
+                env.URL_SHORTENER.put(uniqueId, url, { expirationTtl: 86400 * 30 }), // 30 days
+                env.URL_SHORTENER.put(`reverse:${url}`, uniqueId, { expirationTtl: 86400 * 30 }),
             ]);
 
             return { url, shortUrl };
@@ -51,8 +51,8 @@ export async function shortenUrl(url: string, env: Bindings, baseUrl: string): P
     return urlMap.get(url) || url;
 }
 
-export async function resolveShortUrl(shortId: string, env: Bindings): Promise<string | null> {
-    return await env.URL_SHORTENER.get(shortId);
+export async function resolveShortUrl(uniqueId: string, env: Bindings): Promise<string | null> {
+    return await env.URL_SHORTENER.get(uniqueId);
 }
 
 export function extractGitHubUrls(text: string): string[] {
