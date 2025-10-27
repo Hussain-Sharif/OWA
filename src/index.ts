@@ -32,6 +32,7 @@ async function processCommits(env: Bindings, baseUrl: string) {
     await sendWhatsAppMessage({
         message: result,
         greenApiUrl: env.BOT_GREEN_API_URL,
+        chatId: env.WHATSAPP_CHAT_ID,
     });
 
     return { data: allCommitsDataOfAllUsers, result };
@@ -47,6 +48,7 @@ app.get("/", async (c) => {
         await sendWhatsAppMessage({
             message: `Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`,
             greenApiUrl: c.env.BOT_GREEN_API_URL,
+            chatId: c.env.WHATSAPP_CHAT_ID,
         });
         return c.json({ statusCode: 500, message: "Failed to fetch commits" }, 500);
     }
@@ -106,6 +108,7 @@ export default {
             await sendWhatsAppMessage({
                 message: `Hey Guys,\nIt's me OWA\nScheduled task failed!\nReason:\n${JSON.stringify(error)}`,
                 greenApiUrl: env.BOT_GREEN_API_URL,
+                chatId: env.WHATSAPP_CHAT_ID,
             });
         }
     },

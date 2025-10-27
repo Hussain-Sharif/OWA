@@ -1,12 +1,17 @@
+function buildGreenApiUrl(templateUrl: string, method: string): string {
+    return templateUrl.replace("{method}", method);
+}
+
 export async function sendWhatsAppMessage({
     message,
     greenApiUrl,
+    chatId,
 }: {
     message: string;
     greenApiUrl: string;
+    chatId: string;
 }): Promise<void> {
-    const chatId = "120363169536263534@g.us";
-    const apiUrl = greenApiUrl;
+    const apiUrl = buildGreenApiUrl(greenApiUrl, "sendMessage");
 
     const headers = new Headers({
         "User-Agent": "GREEN-API_POSTMAN/1.0",
