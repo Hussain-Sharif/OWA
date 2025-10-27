@@ -1,4 +1,5 @@
-import {
+import { isToday } from "date-fns";
+import type {
     EachCommit,
     EachFileOnCommit,
     ExtraInfoGoodResponseCommit,
@@ -6,16 +7,11 @@ import {
     GithubGoodResponseType,
 } from "../libs/types";
 import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
-import { isSameDay, isToday, isAfter } from "date-fns";
 
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
-    // console.log("inside getTodaysCommits");
-    // const targetDate = new Date("2025-09-19"); //Used for Testing
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDate = new Date(eachCommitObj.commit.committer.date);
-        // return isAfter(commitDate, new Date("2025-10-26"));
         return isToday(commitDate);
-        // return isSameDay(commitDate,targetDate) //Used for Testing
     });
 };
 
@@ -23,21 +19,14 @@ export const formattedCommits = (
     allExtraInfocommits: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[],
 ) => {
     const allExtraInfoGoodCommits = allExtraInfocommits as ExtraInfoGoodResponseCommit[];
-
-    // console.log("Formatting Commits length:",allExtraInfoGoodCommits.length)
-
     const authorName = allExtraInfoGoodCommits[0]?.data?.author?.login;
 
     const listOfFormattedCommitData = allExtraInfoGoodCommits?.map(
         (eachExtraInfoCommit: ExtraInfoGoodResponseCommit) => {
-            // Fix Time and Date:
             const commitTimeDate = eachExtraInfoCommit.data.commit.committer.date;
             const formatedTimeDate = new Date(commitTimeDate).toLocaleString();
 
-            // get commit Message:
             const eachCommitMessage = eachExtraInfoCommit.data.commit.message;
-
-            // get files:
             let eachCommitFiles = eachExtraInfoCommit.data.files.map(
                 (eachFile: EachFileOnCommit) => {
                     return {
@@ -48,7 +37,7 @@ export const formattedCommits = (
                 },
             );
 
-            // remove ./obsidian files
+            // ignore .obsidian folder
             eachCommitFiles = eachCommitFiles.filter((eachFile) => {
                 return !eachFile.fileName.includes(".obsidian");
             });
@@ -78,15 +67,13 @@ export const getTopCommits = async (
         repoRepsponse.statusCode === 200 &&
         "data" in repoRepsponse
     ) {
-        // console.log(repoRepsponse)
-        // console.log("inside getTopCommits", userName, repoName, pat);
-
         if (repoRepsponse.data.length === 0) {
             return {
                 statusCode: 200,
                 message: "No Commits Made Till Now",
             };
         }
+
         const filteredData: EachCommit[] = filteredTodaysCommits(repoRepsponse.data);
         if (filteredData.length === 0) {
             return {
@@ -95,17 +82,12 @@ export const getTopCommits = async (
             };
         }
 
-        // By here have atleast One Commit shit!
-
-        // Now I am decided to only have SHA of every Commit
         const listOfCommitShas: string[] = filteredData.map((eachCommitObj: EachCommit) => {
             return eachCommitObj.sha;
         });
 
-        // console.log("Called getRepoFileExtraInfo");
         const extraInfo: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] =
             await getRepoFileExtraInfo(userName, repoName, pat, listOfCommitShas);
-        // console.log("getRepoFileExtraInfo:", extraInfo);
 
         const gotAtleastOneBadResponse = extraInfo.some(
             (eachCommitObj: ExtraInfoGoodResponseCommit | GithubBadResponseType) => {
@@ -120,10 +102,7 @@ export const getTopCommits = async (
             };
         }
 
-        // Format the Data from extraInfo iff statusCode is 200
         const formattedData = formattedCommits(extraInfo);
-
-        // Now return both pieces of info
         return {
             statusCode: 200,
             message: "Commits Retrieved",

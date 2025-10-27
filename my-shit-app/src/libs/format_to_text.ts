@@ -1,27 +1,19 @@
-import { Bindings } from "./types";
+import type { Bindings } from "./types";
 import { extractGitHubUrls, replaceUrlsInText, shortenUrlsBatch } from "./url_shortner";
 
-const format_to_text = async(
-    allCommitsDataOfAllUsers: any,
-      env: Bindings,
-  baseUrl: string
-) => {
-    console.log("inside func");
+const format_to_text = async (allCommitsDataOfAllUsers: any, env: Bindings, baseUrl: string) => {
     const result = allCommitsDataOfAllUsers.map((data: any) => {
-        let name = data["userName"];
-        // console.log("inside m1")
+        const name = data["userName"];
         const commit_message = data.allReposPerUser.map((eachrepo: any) => {
             if (eachrepo?.commits === undefined) {
                 return `\n${eachrepo.message}`;
             }
-            // console.log("inside m2")
-            let reponame = eachrepo.repoName;
 
+            const reponame = eachrepo.repoName;
             return `${
                 eachrepo.commits?.renamed
                     ? `\nRenamed:${eachrepo.commits.renamed.map(
                           (eachrenamedfile: any, i: number) => {
-                              // console.log("inside m11")
                               return `\n${i + 1}. ${reponame}/${eachrenamedfile.fileName} - ${eachrenamedfile.fileUrl}`;
                           },
                       )}\n`
@@ -29,7 +21,6 @@ const format_to_text = async(
             }${
                 eachrepo.commits?.added
                     ? `\nAdded:${eachrepo.commits.added.map((eachaddedfile: any, i: number) => {
-                          // console.log("inside m12")
                           return `\n${i + 1}. ${reponame}/${eachaddedfile.fileName}\n${eachaddedfile.fileUrl}`;
                       })}\n`
                     : ""
@@ -37,9 +28,8 @@ const format_to_text = async(
                 eachrepo.commits?.modified
                     ? `\nModified:${eachrepo.commits.modified.map(
                           (eachmodifiedfile: any, i: number) => {
-                              // console.log("inside m13")
                               return `\n${i + 1}. ${reponame}/${eachmodifiedfile.fileName} - ${eachmodifiedfile.fileCommitMessage}\n${eachmodifiedfile.fileUrl}`;
-                          }
+                          },
                       )}\n`
                     : ""
             }`;
@@ -47,19 +37,16 @@ const format_to_text = async(
         return `${name.toUpperCase()}\n${commit_message}\n\n`;
     });
 
-    // console.log(result);
     let message = `${result}`;
-
     if (env && baseUrl) {
-         const githubUrls = extractGitHubUrls(message);
-    
-    if (githubUrls.length > 0) {
-        console.log(`Shortening ${githubUrls.length} URLs...`);
-        const urlMap = await shortenUrlsBatch(githubUrls, env, baseUrl);
-        message = replaceUrlsInText(message, urlMap);
-        console.log(`URLs shortened successfully`);
+        const githubUrls = extractGitHubUrls(message);
+        if (githubUrls.length > 0) {
+            console.log(`Shortening ${githubUrls.length} URLs...`);
+            const urlMap = await shortenUrlsBatch(githubUrls, env, baseUrl);
+            message = replaceUrlsInText(message, urlMap);
+            console.log(`URLs shortened successfully`);
+        }
     }
-  }
 
     return message;
 };

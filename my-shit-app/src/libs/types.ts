@@ -1,9 +1,3 @@
-
-// Type for one GitHub Commit (from /repos/:owner/:repo/commits API)
-
-// <--------------------Commits Level Types------------------------>
-
-// All possible statuses
 export type FileStatus = "renamed" | "modified" | "created" | "deleted";
 
 export type EachCommit = {
@@ -195,8 +189,6 @@ export type FinalUserCommitsData_Summary = {
     allReposPerUser: FormattedAllSettledRepoOutput_Summary;
 };
 
-//--------------------User/Repo Level Types-------------------------------->
-
 export type EachUserInfo = {
     USERNAME: string;
     ALLREPOS: string | string[];
@@ -209,9 +201,6 @@ export type EachRepoInfo = {
     PAT: string;
 };
 
-//------------------------------------------------------------->
-
-// For Env types
 export type Bindings = {
     SHARIF_USERNAME: string;
     SHARIF_REPONAMES: string;
@@ -219,10 +208,10 @@ export type Bindings = {
     SADIQ_USERNAME: string;
     SADIQ_REPONAMES: string;
     SADIQ_PAT: string;
+    SANJAY_USERNAME: string;
+    SANJAY_REPONAMES: string;
+    SANJAY_PAT: string;
 
-    // Adding KV binding
     URL_SHORTENER: KVNamespace;
-
-    // Adding green api url binding
-    BOT_GREEN_API_URL:string
+    BOT_GREEN_API_URL: string;
 };

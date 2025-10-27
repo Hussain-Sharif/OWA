@@ -8,9 +8,7 @@
     },
     "files": {
         "ignoreUnknown": false,
-        "includes": [
-            "src/**/*.{js,ts}"
-        ]
+        "includes": ["src/**/*.{js,ts}"]
     },
     "formatter": {
         "enabled": true,
@@ -24,10 +22,17 @@
             "recommended": true
         }
     },
+    "javascript": {
+        "formatter": {
+            "enabled": true
+        }
+    },
     "assist": {
         "actions": {
             "source": {
-                "organizeImports": "on"
+                "organizeImports": {
+                    "level": "on"
+                }
             }
         }
     }

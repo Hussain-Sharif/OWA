@@ -1,7 +1,6 @@
-import {
+import type {
     AllSettledRepoOutput_Summary,
     CommitsObject_Summary,
-    EachRepoCommitInfo_Summary,
     EachRepoInfo,
     EachUserInfo,
     FinalIndividualCommitResponse,
@@ -15,8 +14,6 @@ import { getSummaryObject } from "./getSummaryObject";
 import { getTopCommits } from "./getTopCommits";
 
 const getEachRepoCommitInfo = async (eachRepoPerUser: EachRepoInfo) => {
-    // console.log("getEachRepoCom",eachRepoPerUser)
-
     const { USERNAME, REPONAME, PAT } = eachRepoPerUser;
 
     const gettingAllCommitsInfo: GithubGoodResponseType | GithubBadResponseType =
@@ -55,7 +52,6 @@ const getEachRepoCommitInfo = async (eachRepoPerUser: EachRepoInfo) => {
 
 const commitLaunchpad = async (eachUserInfo: EachUserInfo) => {
     let { USERNAME, ALLREPOS, PAT } = eachUserInfo;
-    // console.log("commitLanuch",{USERNAME,ALLREPOS,PAT})
     ALLREPOS = ALLREPOS as string;
     ALLREPOS = JSON.parse(ALLREPOS) as string[];
 
@@ -64,7 +60,6 @@ const commitLaunchpad = async (eachUserInfo: EachUserInfo) => {
             getEachRepoCommitInfo({ USERNAME, REPONAME: eachRepoPerUser, PAT }),
         ),
     );
-    // console.log("INSIDE COMMIT LAUNCHPAD allRepoOutputs:",allRepoOutputs)
 
     // Transform into success/failure array
     const formattedRepoOutputs: FormattedAllSettledRepoOutput_Summary = allRepoOutputs.map(

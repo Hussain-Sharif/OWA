@@ -1,4 +1,4 @@
-import { ExtraInfoGoodResponseCommit, GithubBadResponseType } from "../libs/types";
+import type { ExtraInfoGoodResponseCommit, GithubBadResponseType } from "../libs/types";
 
 const fetchExtraInfoPerCommit = async (
     userName: string,
@@ -8,7 +8,6 @@ const fetchExtraInfoPerCommit = async (
 ) => {
     try {
         const urlPath = `https://api.github.com/repos/${userName}/${repoName}/commits/${eachCommitSha}`;
-        // console.log("Requesting:", urlPath);
 
         const response = await fetch(urlPath, {
             headers: {
@@ -17,9 +16,7 @@ const fetchExtraInfoPerCommit = async (
             },
         });
 
-        // console.log("Response status:", response.status);
         const data = await response.json();
-
         if (!response.ok) {
             return { statusCode: response.status, message: await response.text() };
         }
@@ -42,18 +39,13 @@ export const getRepoFileExtraInfo = async (
     pat: string,
     repoCommitShas: string[],
 ) => {
-    // console.log("getRepoFileExtraInfo START:", repoCommitShas);
-
     const allResponses: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[] = await Promise.all(
         repoCommitShas.map(async (eachCommitSha: string) => {
-            // console.log("Fetching commit:", eachCommitSha);
             const res: ExtraInfoGoodResponseCommit | GithubBadResponseType =
                 await fetchExtraInfoPerCommit(userName, repoName, pat, eachCommitSha);
-            // console.log("Fetched commit:", eachCommitSha, res?.statusCode);
             return res;
         }),
     );
 
-    // console.log("getRepoFileExtraInfo END:", allResponses.length);
     return allResponses;
 };

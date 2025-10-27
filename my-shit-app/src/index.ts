@@ -1,82 +1,34 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import {
-    Bindings,
-    FinalUserCommitsData_Summary,
-} from "./libs/types";
+
 import commitLaunchpad from "./controllers/commiterLaunchpad";
-import { sendWhatsAppMessage } from "./libs/sendmessage";
 import format_to_text from "./libs/format_to_text";
+import { sendWhatsAppMessage } from "./libs/sendmessage";
+import type { Bindings, FinalUserCommitsData_Summary } from "./libs/types";
 import { resolveShortUrl } from "./libs/url_shortner";
-//CONFIG AND APP readiness
+
 const app = new Hono<{ Bindings: Bindings }>();
 
-// CORS
 app.use("/*", cors());
 
-//Routes
-
-// Add URL redirection route
 app.get("/:shortId", async (c) => {
-  const shortId = c.req.param('shortId');
-  
-  try {
-    const originalUrl = await resolveShortUrl(shortId, c.env);
-    
-    if (originalUrl) {
-      return c.redirect(originalUrl, 302);
-    }
-    
-    return c.text('Short URL not found', 404);
-  } catch (error) {
-    console.error('Error resolving short URL:', error);
-    return c.text('Error resolving URL', 500);
-  }
-});
-
-// Main Route
-app.get("/", async (c) => {
-    // console.log(`initial env`,c.env);
-
-    // <------------------------Initial Commiter Launchpad------------------------------------->
-
-    // <==========================Don't Touch Below this======================================>
-
-    // const gettingAllCommitsInfo: GithubGoodResponseType | GithubBadResponseType = await getGithubRepoInfo(
-    //     c.env.SHARIF_USERNAME,
-    //     c.env.SHARIF_REPONAME,
-    //     c.env.SHARIF_PAT,
-    // );
-    // // getTopCommits({...gettingAllCommitsInfo})
-    // const getAllTopProperCommitsInfo:FinalIndividualCommitResponse | GithubBadResponseType = await getTopCommits(
-    //     c.env.SHARIF_USERNAME,
-    //     c.env.SHARIF_REPONAME,
-    //     c.env.SHARIF_PAT,
-    //     {
-    //         ...gettingAllCommitsInfo,
-    //     },
-    // );
-    // if( getAllTopProperCommitsInfo.statusCode !== 200 || false===("formattedData" in getAllTopProperCommitsInfo)){
-    //     c.status(getAllTopProperCommitsInfo.statusCode as StatusCode);
-    //     return c.json(getAllTopProperCommitsInfo);
-    // }
-
-    // const finalGoodResponse= getAllTopProperCommitsInfo as FinalIndividualCommitResponse
-
-    // const newformattedSummaryData=getSummaryObject(finalGoodResponse.formattedData);
-
-    // const USERNAME=c.env.SHARIF_USERNAME
-    // const AllREPOS=c.env.SHARIF_REPONAMES
-    // const PAT=c.env.SHARIF_PAT
-    // const eachUserInfo={USERNAME,AllREPOS,PAT}
-    // <==========================Don't Touch Above this======================================>
+    const shortId = c.req.param("shortId");
 
     try {
-            console.log('KV Debug:', {
-        hasKV: !!c.env.URL_SHORTENER,
-        envKeys: Object.keys(c.env)
-    });
+        const originalUrl = await resolveShortUrl(shortId, c.env);
+        if (originalUrl) {
+            return c.redirect(originalUrl, 302);
+        }
 
+        return c.text("Short URL not found", 404);
+    } catch (error) {
+        console.error("Error resolving short URL:", error);
+        return c.text("Error resolving URL", 500);
+    }
+});
+
+app.get("/", async (c) => {
+    try {
         const envsOfUsers = [
             {
                 USERNAME: c.env.SHARIF_USERNAME,
@@ -88,7 +40,12 @@ app.get("/", async (c) => {
                 ALLREPOS: c.env.SADIQ_REPONAMES,
                 PAT: c.env.SADIQ_PAT,
             },
-        ];
+            {
+                USERNAME: c.env.SANJAY_USERNAME,
+                ALLREPOS: c.env.SANJAY_REPONAMES,
+                PAT: c.env.SANJAY_PAT,
+            },
+        ].filter((user) => user.USERNAME && user.ALLREPOS && user.PAT);
 
         const allCommitsDataOfAllUsers = await Promise.all(
             envsOfUsers.map(async (eachUserInfo) => {
@@ -98,27 +55,21 @@ app.get("/", async (c) => {
             }),
         );
 
-        // Get base URL for short links
         const baseUrl = new URL(c.req.url).origin;
 
         const result = await format_to_text(allCommitsDataOfAllUsers, c.env, baseUrl);
-        
-        // console.log("at end point", c.env.BOT_GREEN_API_URL)
         await sendWhatsAppMessage({
-            message:result,
-            greenApiUrl: c.env.BOT_GREEN_API_URL
+            message: result,
+            greenApiUrl: c.env.BOT_GREEN_API_URL,
         });
-        
-        
-        return c.json({ data: allCommitsDataOfAllUsers, result:result });
-        // return c.json(allCommitsDataOfAllUsers);
+
+        return c.json({ data: allCommitsDataOfAllUsers, result: result });
     } catch (error) {
         console.error("Error fetching commits:", error);
-        await sendWhatsAppMessage(
-          { message: `Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`,
-        greenApiUrl:c.env.BOT_GREEN_API_URL
-        }
-        );
+        await sendWhatsAppMessage({
+            message: `Hey Guys,\nIt's me OWA\nHi Sharif anna Server Failed!,\nReason:\n${JSON.stringify(error)} \nSadiq & Sanjay are Responsible for this`,
+            greenApiUrl: c.env.BOT_GREEN_API_URL,
+        });
         return c.json({ statusCode: 500, message: "Failed to fetch commits" }, 500);
     }
 });
