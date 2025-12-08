@@ -3,7 +3,13 @@ import { cors } from "hono/cors";
 
 import commitLaunchpad from "./controllers/commiterLaunchpad";
 import format_to_text from "./libs/format_to_text";
+import {
+    getRandomAllUsersNoCommitsMessage,
+    getRandomSomeUsersNoCommitsMessage,
+} from "./libs/noCommitsMessages";
 import { sendWhatsAppMessage } from "./libs/sendmessage";
+import hasNoCommits from "./libs/hasNoCommits";
+import { getUsersWithNoCommits } from "./libs/getUsersWithNoCommits";
 import type { Bindings, FinalUserCommitsData_Summary } from "./libs/types";
 import { parseGitHubUsers } from "./libs/types";
 import { resolveShortUrl } from "./libs/url_shortner";
@@ -27,6 +33,34 @@ async function processCommits(env: Bindings, baseUrl: string) {
             return getAllCommitInfoPerUser;
         }),
     );
+
+    if (hasNoCommits(allCommitsDataOfAllUsers)) {
+        const noCommitsMessage = getRandomAllUsersNoCommitsMessage();
+        console.log("No commits detected from all users, sending random message");
+        await sendWhatsAppMessage({
+            message: noCommitsMessage,
+            greenApiUrl: env.BOT_GREEN_API_URL,
+            chatId: env.WHATSAPP_CHAT_ID,
+        });
+        return { data: allCommitsDataOfAllUsers, result: noCommitsMessage };
+    }
+
+    const usersWithNoCommits = getUsersWithNoCommits(allCommitsDataOfAllUsers);
+    if (usersWithNoCommits.length > 0) {
+        const noCommitsMessage = getRandomSomeUsersNoCommitsMessage(usersWithNoCommits);
+        console.log(
+            `No commits detected from some users (${usersWithNoCommits.join(", ")}), sending message`,
+        );
+
+        const commitsResult = await format_to_text(allCommitsDataOfAllUsers, env, baseUrl);
+        const combinedMessage = `${noCommitsMessage}\n\n${commitsResult}`;
+        await sendWhatsAppMessage({
+            message: combinedMessage,
+            greenApiUrl: env.BOT_GREEN_API_URL,
+            chatId: env.WHATSAPP_CHAT_ID,
+        });
+        return { data: allCommitsDataOfAllUsers, result: combinedMessage };
+    }
 
     const result = await format_to_text(allCommitsDataOfAllUsers, env, baseUrl);
     await sendWhatsAppMessage({
