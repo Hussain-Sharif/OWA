@@ -5,7 +5,7 @@ import commitLaunchpad from "./controllers/commiterLaunchpad";
 import format_to_text from "./libs/format_to_text";
 import {
     getRandomAllUsersNoCommitsMessage,
-    getRandomSomeUsersNoCommitsMessage,
+    getRandomSingleUserNoCommitsMessage,
 } from "./libs/noCommitsMessages";
 import { sendWhatsAppMessage } from "./libs/sendmessage";
 import hasNoCommits from "./libs/hasNoCommits";
@@ -47,13 +47,23 @@ async function processCommits(env: Bindings, baseUrl: string) {
 
     const usersWithNoCommits = getUsersWithNoCommits(allCommitsDataOfAllUsers);
     if (usersWithNoCommits.length > 0) {
-        const noCommitsMessage = getRandomSomeUsersNoCommitsMessage(usersWithNoCommits);
         console.log(
             `No commits detected from some users (${usersWithNoCommits.join(", ")}), sending message`,
         );
 
-        const commitsResult = await format_to_text(allCommitsDataOfAllUsers, env, baseUrl);
-        const combinedMessage = `${noCommitsMessage}\n\n${commitsResult}`;
+        const commitsResult = await format_to_text(
+            allCommitsDataOfAllUsers,
+            env,
+            baseUrl,
+            usersWithNoCommits,
+        );
+
+        const noCommitsMessages = usersWithNoCommits.map((userName) => {
+            const message = getRandomSingleUserNoCommitsMessage(userName);
+            return `${userName}:\n${message}`;
+        });
+
+        const combinedMessage = `${commitsResult}\n\n${noCommitsMessages.join("\n\n")}`;
         await sendWhatsAppMessage({
             message: combinedMessage,
             greenApiUrl: env.BOT_GREEN_API_URL,

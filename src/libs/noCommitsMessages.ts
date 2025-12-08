@@ -54,3 +54,18 @@ export function getRandomSomeUsersNoCommitsMessage(names: string[]): string {
 
     return message;
 }
+
+export function getRandomSingleUserNoCommitsMessage(name: string): string {
+    let message: string;
+    if (SOME_USERS_NO_COMMITS_MESSAGES.length === 0) {
+        message = "Hey {name}! No commits detected from you today. Keep coding! 💻";
+    } else {
+        const randomIndex = Math.floor(Math.random() * SOME_USERS_NO_COMMITS_MESSAGES.length);
+        message = SOME_USERS_NO_COMMITS_MESSAGES[randomIndex];
+    }
+
+    message = message.replace(/{names}/g, name);
+    message = message.replace(/{name}/g, name);
+
+    return message;
+}

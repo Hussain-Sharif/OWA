@@ -1,14 +1,27 @@
 import type { Bindings } from "./types";
 import { extractGitHubUrls, replaceUrlsInText, shortenUrlsBatch } from "./url_shortner";
 
-const format_to_text = async (allCommitsDataOfAllUsers: any, env: Bindings, baseUrl: string) => {
-    const result = allCommitsDataOfAllUsers.map((data: any) => {
-        const name = data["userName"];
-        const commit_message = data.allReposPerUser.map((eachrepo: any) => {
-            if (eachrepo?.commits === undefined) {
-                return `\n${eachrepo.message}`;
-            }
+const format_to_text = async (
+    allCommitsDataOfAllUsers: any,
+    env: Bindings,
+    baseUrl: string,
+    excludeUsers?: string[],
+) => {
+    const usersToFormat = excludeUsers
+        ? allCommitsDataOfAllUsers.filter((data: any) => !excludeUsers.includes(data.userName))
+        : allCommitsDataOfAllUsers;
 
+    const result = usersToFormat.map((data: any) => {
+        const name = data["userName"];
+        const reposWithCommits = data.allReposPerUser.filter(
+            (eachrepo: any) => eachrepo?.commits !== undefined,
+        );
+
+        if (reposWithCommits.length === 0) {
+            return "";
+        }
+
+        const commit_message = reposWithCommits.map((eachrepo: any) => {
             const reponame = eachrepo.repoName;
             return `${
                 eachrepo.commits?.renamed
@@ -34,10 +47,11 @@ const format_to_text = async (allCommitsDataOfAllUsers: any, env: Bindings, base
                     : ""
             }`;
         });
-        return `${name.toUpperCase()}\n${commit_message}\n\n`;
+        const commitMessageText = commit_message.join("");
+        return `${name}${commitMessageText}\n\n`;
     });
 
-    let message = `${result}`;
+    let message = result.join("");
     if (env && baseUrl) {
         const githubUrls = extractGitHubUrls(message);
         if (githubUrls.length > 0) {
