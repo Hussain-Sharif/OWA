@@ -23,27 +23,39 @@ const format_to_text = async (
 
         const commit_message = reposWithCommits.map((eachrepo: any) => {
             const reponame = eachrepo.repoName;
+
+            const renamedFiles =
+                eachrepo.commits?.renamed?.filter(
+                    (file: any) => !file.fileName.toLowerCase().endsWith(".png"),
+                ) || [];
+
+            const addedFiles =
+                eachrepo.commits?.added?.filter(
+                    (file: any) => !file.fileName.toLowerCase().endsWith(".png"),
+                ) || [];
+
+            const modifiedFiles =
+                eachrepo.commits?.modified?.filter(
+                    (file: any) => !file.fileName.toLowerCase().endsWith(".png"),
+                ) || [];
+
             return `${
-                eachrepo.commits?.renamed
-                    ? `\nRenamed:${eachrepo.commits.renamed.map(
-                          (eachrenamedfile: any, i: number) => {
-                              return `\n${i + 1}. ${reponame}/${eachrenamedfile.fileName} - ${eachrenamedfile.fileUrl}`;
-                          },
-                      )}\n`
+                renamedFiles.length > 0
+                    ? `\nRenamed:${renamedFiles.map((eachrenamedfile: any, i: number) => {
+                          return `\n${i + 1}. ${reponame}/${eachrenamedfile.fileName} - ${eachrenamedfile.fileUrl}`;
+                      })}\n`
                     : ""
             }${
-                eachrepo.commits?.added
-                    ? `\nAdded:${eachrepo.commits.added.map((eachaddedfile: any, i: number) => {
+                addedFiles.length > 0
+                    ? `\nAdded:${addedFiles.map((eachaddedfile: any, i: number) => {
                           return `\n${i + 1}. ${reponame}/${eachaddedfile.fileName}\n${eachaddedfile.fileUrl}`;
                       })}\n`
                     : ""
             }${
-                eachrepo.commits?.modified
-                    ? `\nModified:${eachrepo.commits.modified.map(
-                          (eachmodifiedfile: any, i: number) => {
-                              return `\n${i + 1}. ${reponame}/${eachmodifiedfile.fileName} - ${eachmodifiedfile.fileCommitMessage}\n${eachmodifiedfile.fileUrl}`;
-                          },
-                      )}\n`
+                modifiedFiles.length > 0
+                    ? `\nModified:${modifiedFiles.map((eachmodifiedfile: any, i: number) => {
+                          return `\n${i + 1}. ${reponame}/${eachmodifiedfile.fileName} - ${eachmodifiedfile.fileCommitMessage}\n${eachmodifiedfile.fileUrl}`;
+                      })}\n`
                     : ""
             }`;
         });
