@@ -3,10 +3,7 @@ import { cors } from "hono/cors";
 
 import commitLaunchpad from "./controllers/commiterLaunchpad";
 import format_to_text from "./libs/format_to_text";
-import {
-    getRandomAllUsersNoCommitsMessage,
-    getRandomSingleUserNoCommitsMessage,
-} from "./libs/noCommitsMessages";
+import { getUniqueMessagesForUsers } from "./libs/noCommitsMessages";
 import { sendWhatsAppMessage } from "./libs/sendmessage";
 import hasNoCommits from "./libs/hasNoCommits";
 import { getUsersWithNoCommits } from "./libs/getUsersWithNoCommits";
@@ -34,18 +31,36 @@ async function processCommits(env: Bindings, baseUrl: string) {
         }),
     );
 
+    const usernameToNameMap = new Map<string, string>();
+    githubUsers.forEach((user) => {
+        usernameToNameMap.set(user.username, user.name);
+    });
+
+    const usersWithNoCommits = getUsersWithNoCommits(allCommitsDataOfAllUsers);
+    const userNames = usersWithNoCommits.map(
+        (userName) => usernameToNameMap.get(userName) || userName,
+    );
+    const uniqueMessagesMap = getUniqueMessagesForUsers(userNames);
+
+    const noCommitsMessages = usersWithNoCommits.map((userName) => {
+        const userDisplayName = usernameToNameMap.get(userName) || userName;
+        const personalizedMessage =
+            uniqueMessagesMap.get(userDisplayName) ||
+            `Hey ${userDisplayName}! No commits detected from you today`;
+        return `${userName}\n${personalizedMessage}\n\n`;
+    });
+
     if (hasNoCommits(allCommitsDataOfAllUsers)) {
-        const noCommitsMessage = getRandomAllUsersNoCommitsMessage();
-        console.log("No commits detected from all users, sending random message");
+        console.log("No commits detected from all users, sending personalized messages");
+        const allNoCommitsMessage = noCommitsMessages.join("");
         await sendWhatsAppMessage({
-            message: noCommitsMessage,
+            message: allNoCommitsMessage,
             greenApiUrl: env.BOT_GREEN_API_URL,
             chatId: env.WHATSAPP_CHAT_ID,
         });
-        return { data: allCommitsDataOfAllUsers, result: noCommitsMessage };
+        return { data: allCommitsDataOfAllUsers, result: allNoCommitsMessage };
     }
 
-    const usersWithNoCommits = getUsersWithNoCommits(allCommitsDataOfAllUsers);
     if (usersWithNoCommits.length > 0) {
         console.log(
             `No commits detected from some users (${usersWithNoCommits.join(", ")}), sending message`,
@@ -58,12 +73,10 @@ async function processCommits(env: Bindings, baseUrl: string) {
             usersWithNoCommits,
         );
 
-        const noCommitsMessages = usersWithNoCommits.map((userName) => {
-            const message = getRandomSingleUserNoCommitsMessage(userName);
-            return `${userName}:\n${message}`;
-        });
-
-        const combinedMessage = `${commitsResult}\n\n${noCommitsMessages.join("\n\n")}`;
+        const noCommitsSection = noCommitsMessages.join("");
+        const combinedMessage = commitsResult
+            ? `${commitsResult}${noCommitsSection}`
+            : noCommitsSection;
         await sendWhatsAppMessage({
             message: combinedMessage,
             greenApiUrl: env.BOT_GREEN_API_URL,

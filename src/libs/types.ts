@@ -203,6 +203,7 @@ export type EachRepoInfo = {
 
 export type GitHubUser = {
     username: string;
+    name: string;
     repositories: string[];
     pat: string;
 };
