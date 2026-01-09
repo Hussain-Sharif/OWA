@@ -1,4 +1,4 @@
-import type { Bindings } from "./types";
+import type { Bindings } from "../libs/types";
 
 const BASE36_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
 

@@ -6,7 +6,7 @@ import type {
     GithubBadResponseType,
     GithubGoodResponseType,
 } from "../libs/types";
-import { getRepoFileExtraInfo } from "./getRepoFileExtraInfo";
+import { getRepoFileExtraInfo } from "../services/getRepoFileExtraInfo";
 
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
     return allCommistsData.filter((eachCommitObj: EachCommit) => {

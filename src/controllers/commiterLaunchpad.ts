@@ -9,7 +9,7 @@ import type {
     GithubBadResponseType,
     GithubGoodResponseType,
 } from "../libs/types";
-import { getGithubRepoInfo } from "./getGithubRepoInfo";
+import { getGithubRepoInfo } from "../services/getGithubRepoInfo";
 import { getSummaryObject } from "./getSummaryObject";
 import { getTopCommits } from "./getTopCommits";
 

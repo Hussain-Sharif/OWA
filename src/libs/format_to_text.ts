@@ -1,5 +1,5 @@
 import type { Bindings } from "./types";
-import { extractGitHubUrls, replaceUrlsInText, shortenUrlsBatch } from "./url_shortner";
+import { extractGitHubUrls, replaceUrlsInText, shortenUrlsBatch } from "../services/url_shortner";
 
 const format_to_text = async (
     allCommitsDataOfAllUsers: any,

@@ -4,12 +4,12 @@ import { cors } from "hono/cors";
 import commitLaunchpad from "./controllers/commiterLaunchpad";
 import format_to_text from "./libs/format_to_text";
 import { getUniqueMessagesForUsers } from "./libs/noCommitsMessages";
-import { sendWhatsAppMessage } from "./libs/sendmessage";
+import { sendWhatsAppMessage } from "./services/sendmessage";
 import hasNoCommits from "./libs/hasNoCommits";
 import { getUsersWithNoCommits } from "./libs/getUsersWithNoCommits";
 import type { Bindings, FinalUserCommitsData_Summary } from "./libs/types";
 import { parseGitHubUsers } from "./libs/types";
-import { resolveShortUrl } from "./libs/url_shortner";
+import { resolveShortUrl } from "./services/url_shortner";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -95,7 +95,57 @@ async function processCommits(env: Bindings, baseUrl: string) {
     return { data: allCommitsDataOfAllUsers, result };
 }
 
-app.get("/", async (c) => {
+app.get("/", (c) => {
+    return c.json({
+        "author": {
+            "name": "Hussain Sharif",
+            "linked_in": "https://www.linkedin.com/in/hussainsharifshaik/",
+            "x": "https://x.com/Sharif1438Shaik",
+            "github": "https://github.com/Hussain-Sharif/",
+        },
+        "name": "OWA: Obsidian-Whatsapp-Automation",
+        "description": "Whatsapp bot for collabrative Obsidian Notes(.md)",
+        "documentation": "https://github.com/Hussain-Sharif/Obsidian-Whatsapp-Automation",
+        "endpoints": {
+            "bot-triggering": {
+                "GET /trigger": "Summary of the current day github commits of the Obsidian Vault repos",
+            },
+            "health-check": {
+                "GET /health": "Check API health status"
+            },
+            "KV-URL_Shortner": {
+                "GET /:shortId": "URL_Shortner service for github links of notes using KV-Storage"
+            },
+            "root": {
+                "GET /": "Get API information and documentation"
+            },
+        },
+        "features": [
+            "Built with Honojs & Runs on Cloudflare",
+            "Trigger: Cron job (scheduled) daily",
+            "Fetch: Pull commits from multiple GitHub repos Using Github Apis from Multiple users",
+            "Transform: Format into readable message + shorten URLs(shorting the github notes URLs)",
+            "Send: Deliver via WhatsApp using Green Api",
+            "Store: Cache shortened URLs in KV",
+        ],
+        "version": "1.0.0"
+    })
+})
+
+app.get('/health',(c)=>{
+    return c.json({
+        "status": {
+            "overall": "healthy",
+            "timestamp": new Date()
+        },
+        "version": {
+            "api": "1.0.0",
+            "environment": c.env.ENVIRONMENT
+        },
+    })
+})
+
+app.get("/trigger", async (c) => {
     try {
         const baseUrl = new URL(c.req.url).origin;
         const result = await processCommits(c.env, baseUrl);
