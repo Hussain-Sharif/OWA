@@ -11,8 +11,8 @@
   // },
   "kv_namespaces": [
     {
-      "binding": "worker-URL_SHORTENER",
-      "id": "bec268b6ebe04d09b4c947ab134ea58a"
+      "binding": "URL_SHORTENER",
+      "id": "c1f0b625185e4f93a41d517180b59e5e"
     }
   ],
   "triggers": {
