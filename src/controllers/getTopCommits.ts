@@ -103,6 +103,7 @@ export const getTopCommits = async (
         }
 
         const formattedData = formattedCommits(extraInfo);
+        // console.log("formatted Data per data :",formattedData) //debug-helper
         return {
             statusCode: 200,
             message: "Commits Retrieved",

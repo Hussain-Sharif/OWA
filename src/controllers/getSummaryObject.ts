@@ -6,7 +6,7 @@ import type {
 
 const finalGroupingBasedOnStatuses = (allPossibleFileCommits: EachFilePerCommitInfo_Summary[]) => {
     const filteringMap = new Map();
-
+    // The commits in the order of newest-first
     allPossibleFileCommits.forEach(
         (eachFileData: {
             fileName: string;
@@ -34,7 +34,7 @@ const finalGroupingBasedOnStatuses = (allPossibleFileCommits: EachFilePerCommitI
                 if (
                     filteringMap.has(fileName) &&
                     currentStatus === "modified" &&
-                    (previousStatus === "modified" || previousStatus === "renamed")
+                    (previousStatus === "renamed")
                 ) {
                     filteringMap.set(fileName, eachFileData.fileRemainingInfo);
                 }
@@ -42,7 +42,7 @@ const finalGroupingBasedOnStatuses = (allPossibleFileCommits: EachFilePerCommitI
                 else if (
                     filteringMap.has(fileName) &&
                     currentStatus === "renamed" &&
-                    (previousStatus === "modified" || previousStatus === "renamed")
+                    (previousStatus === "modified" )
                 ) {
                     filteringMap.set(fileName, eachFileData.fileRemainingInfo);
                 }
@@ -61,6 +61,8 @@ const finalGroupingBasedOnStatuses = (allPossibleFileCommits: EachFilePerCommitI
     );
 
     const categorizedMap = new Map();
+
+    // console.log("inside finalgrouping filteringMap:",filteringMap) //debug-helper
 
     const it = filteringMap[Symbol.iterator]();
     for (const eachCommit of it) {

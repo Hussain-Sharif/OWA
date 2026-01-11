@@ -170,8 +170,8 @@ app.get("/test-cron", async (c) => {
     try {
         console.log("Manual cron trigger via /test-cron endpoint");
         const baseUrl = new URL(c.req.url).origin;
-        await processCommits(c.env, baseUrl);
-        return c.json({ success: true, message: "Scheduled task completed successfully" });
+        const result=await processCommits(c.env, baseUrl);
+        return c.json({ success: true, result, message: "Scheduled task completed successfully" });
     } catch (error: unknown) {
         console.error("Error in test cron:", error);
         return c.json({ success: false, error: String(error) }, 500);

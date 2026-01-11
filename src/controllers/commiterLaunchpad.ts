@@ -23,7 +23,8 @@ const getEachRepoCommitInfo = async (eachRepoPerUser: EachRepoInfo) => {
         await getTopCommits(USERNAME, REPONAME, PAT, {
             ...gettingAllCommitsInfo,
         });
-
+    
+    // console.log("getAllTopProperCommitsInfo:",getAllTopProperCommitsInfo) //debug-helper
     if (
         getAllTopProperCommitsInfo.statusCode !== 200 ||
         false === "formattedData" in getAllTopProperCommitsInfo
@@ -40,6 +41,8 @@ const getEachRepoCommitInfo = async (eachRepoPerUser: EachRepoInfo) => {
     const newformattedSummaryData: CommitsObject_Summary = getSummaryObject(
         finalGoodResponse.formattedData,
     );
+
+    // console.log("newformattedSummaryData:",newformattedSummaryData) //debug-helper
 
     return {
         statusCode: 200,
@@ -61,6 +64,8 @@ const commitLaunchpad = async (eachUserInfo: EachUserInfo) => {
         ),
     );
 
+    // console.log("allRepoOutputs:",allRepoOutputs) //debug-helper
+
     // Transform into success/failure array
     const formattedRepoOutputs: FormattedAllSettledRepoOutput_Summary = allRepoOutputs.map(
         (result, idx) =>
@@ -68,7 +73,7 @@ const commitLaunchpad = async (eachUserInfo: EachUserInfo) => {
                 ? result.value
                 : { error: true, repo: ALLREPOS[idx], reason: result.reason },
     );
-
+    // console.log("formatted REpo Output:",formattedRepoOutputs) //debug-helper
     const finalUserCommitsData: FinalUserCommitsData_Summary = {
         statusCode: 200,
         userName: USERNAME,
