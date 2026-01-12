@@ -1,4 +1,4 @@
-# Obsidian WhatsApp Automation (OWA) 🤖📱
+# Obsidian WhatsApp Automation (OWA)
 
 > **Automated daily GitHub commits of Obsidian Vaults tracking sent directly to WhatsApp** — Built on **Cloudflare Workers** for serverless scalability.
 
@@ -23,7 +23,26 @@ OWA is a **fully automated serverless bot** that:
 
 Perfect for **team standups**, **open-source tracking**, **personal accountability** or **Encouraging Peer Learnings via daily Obsidian notes tracking**.
 
+
 ---
+
+## 📊 Performance Metrics
+
+| Operation | Time | Notes |
+|-----------|------|-------|
+| Fetch all commits | ~500ms | Parallel for all users |
+| Get file details | ~800ms | Parallel per commit SHA |
+| Format message | ~100ms | String operations |
+| Shorten URLs | ~200ms | KV lookups + writes |
+| Send WhatsApp | ~1s | Network to Green API |
+| **Total** | ~2.6s | End-to-end |
+
+---
+
+## 📋 Architecture
+
+![OWA_HLD](OWA_HLD.png)
+
 
 ## 🚀 Key Features
 
@@ -68,11 +87,7 @@ Perfect for **team standups**, **open-source tracking**, **personal accountabili
 - **Comprehensive error handling** with WhatsApp alerts
 - **Local development support** with hot reload
 
----
 
-## 📋 Architecture
-
-![OWA_HLD](OWA_HLD.png)
 ---
 
 ## 🛠️ Tech Stack
@@ -396,63 +411,6 @@ In `wrangler.jsonc`:
 }
 ```
 
----
-
-## 🐛 Troubleshooting
-
-### "KV binding not found"
-- Ensure `wrangler.jsonc` has correct KV namespace binding name: `URL_SHORTENER`
-- For dev: Include `preview_id` in KV config
-- Restart dev server: `npx wrangler dev`
-
-### "GITHUB_USERS parse error"
-- Validate JSON format: Use [jsonlint.com](https://jsonlint.com)
-- Ensure all required fields present: `username`, `name`, `repositories`, `pat`
-- Check PAT is valid and has `repo` scope
-
-### "No commits detected" (but you made commits)
-- Commits must be from **today** (UTC timezone)
-- Check commit author email matches GitHub username
-- Verify PAT has `repo` scope
-
-### WhatsApp message not received
-- Verify `BOT_GREEN_API_URL` format ends with `/{method}`
-- Check `WHATSAPP_CHAT_ID` is valid (must be `@g.us` for group)
-- Test Green API directly with Postman/Bruno
-
-### URL shortening not working
-- Check KV namespace ID in `wrangler.jsonc`
-- Ensure KV has `preview_id` for dev mode
-- Verify message has valid GitHub URLs matching regex: `https://github.com/[^\s)]+`
-
----
-
-## 📊 Performance Metrics
-
-| Operation | Time | Notes |
-|-----------|------|-------|
-| Fetch all commits | ~500ms | Parallel for all users |
-| Get file details | ~800ms | Parallel per commit SHA |
-| Format message | ~100ms | String operations |
-| Shorten URLs | ~200ms | KV lookups + writes |
-| Send WhatsApp | ~1s | Network to Green API |
-| **Total** | ~2.6s | End-to-end |
-
----
-
-## 🔐 Security Considerations
-
-### ✅ What's Secure
-- **GitHub PATs** stored only in Cloudflare's encrypted environment
-- **KV data** encrypted at rest on Cloudflare's servers
-- **HTTPS-only** communication with GitHub and Green API
-- **No database**: All data ephemeral or self-destructing (30-day TTL)
-
-### ⚠️ What to Protect
-- Never commit `.dev.vars` or `wrangler.jsonc` with real secrets
-- Rotate GitHub PATs regularly (test in `.gitignore`)
-- Use `--local false` flag in prod to prevent local caching
-- Monitor Green API token rotation policy
 
 ---
 <!-- 
@@ -487,13 +445,7 @@ MIT License — Free to use and modify
 3. [GitHub API Docs](https://docs.github.com/en/rest)
 4. [Green API Docs](https://greenapi.com/en/docs/)
 
----
 
-## 🎉 Credits
-
-Built with ❤️ by **Hussain Sharif** for automated team accountability.
-
-Inspired by daily standups and the need for **zero-infrastructure automation**.
 
 ---
 
