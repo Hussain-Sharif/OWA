@@ -27,6 +27,11 @@ Perfect for **team standups**, **open-source tracking**, **personal accountabili
 
 ## 🚀 Key Features
 
+### 👥 Multiple users and 📁 Multiple vaults 
+- Handles multiple users to which they are related to whatsapp group
+- Each user can have multiple Obsidian Vaults 
+- Changes of those notes in any vault is tracked  
+
 ### ✨ Smart Commit Aggregation
 - Fetches commits from **multiple repos per user** in parallel
 - Filters to **today's commits only** using timezone-aware date logic
@@ -34,9 +39,9 @@ Perfect for **team standups**, **open-source tracking**, **personal accountabili
 - Automatically filters out config folders (`.obsidian`, `.png` files)
 
 ### 🔐 GitHub Integration
-- Supports **multiple GitHub users** with different PATs (Personal Access Tokens)
+- Supports **multiple GitHub users & multiple vault Repos** with different PATs (Personal Access Tokens)
 - Uses official **GitHub REST API** with proper authentication 
-- Handles **API rate limits** gracefully with error fallbacks 
+- Handles **GitHub APIs** gracefully with error fallbacks 
 - Insight: Commit data is in newest-first order
 
 ### 🌍 URL Shortening Service
@@ -96,8 +101,8 @@ Perfect for **team standups**, **open-source tracking**, **personal accountabili
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/Hussain-Sharif/Obsidian-Whatsapp-Automation.git
-cd Obsidian-Whatsapp-Automation
+git clone https://github.com/Hussain-Sharif/OWA
+cd OWA
 npm install
 ```
 
