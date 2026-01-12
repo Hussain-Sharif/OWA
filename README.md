@@ -7,7 +7,7 @@
 [![Hono Framework](https://img.shields.io/badge/Hono-Framework-lightblue?style=flat-square)](https://hono.dev/)
 [![KV Storage](https://img.shields.io/badge/Cloudflare-KV-green?style=flat-square)](https://developers.cloudflare.com/kv/)
 
----
+
 ## Deployed: [owa.hxnsharif.xyz](https://owa.hxnsharif.xyz/) 
 
 ## 🎯 What is OWA?
@@ -24,7 +24,11 @@ OWA is a **fully automated serverless bot** that:
 Perfect for **team standups**, **open-source tracking**, **personal accountability** or **Encouraging Peer Learnings via daily Obsidian notes tracking**.
 
 
----
+
+## 📋 Architecture
+
+![OWA_HLD](OWA_HLD.png)
+
 
 ## 📊 Performance Metrics
 
@@ -36,12 +40,6 @@ Perfect for **team standups**, **open-source tracking**, **personal accountabili
 | Shorten URLs | ~200ms | KV lookups + writes |
 | Send WhatsApp | ~1s | Network to Green API |
 | **Total** | ~2.6s | End-to-end |
-
----
-
-## 📋 Architecture
-
-![OWA_HLD](OWA_HLD.png)
 
 
 ## 🚀 Key Features
@@ -88,7 +86,7 @@ Perfect for **team standups**, **open-source tracking**, **personal accountabili
 - **Local development support** with hot reload
 
 
----
+
 
 ## 🛠️ Tech Stack
 
@@ -103,7 +101,7 @@ Perfect for **team standups**, **open-source tracking**, **personal accountabili
 | **WhatsApp** | Green API | Reliable bot API service |
 | **Deployment** | Wrangler CLI | Official Cloudflare deployment tool |
 
----
+
 
 ## 📦 Installation & Setup
 
@@ -202,7 +200,7 @@ npx wrangler deploy
 curl http://localhost:8787/test-cron
 ```
 
----
+
 
 ## 📚 API Endpoints
 
@@ -270,7 +268,7 @@ curl https://owa.your-subdomain.workers.dev/abc123
 # Redirects to original GitHub URL with 302 status
 ```
 
----
+
 
 ## 🔄 Workflow
 
@@ -303,13 +301,12 @@ Modified:
 1. project-learnings/OWA.md - learned abt URL shortnering
 https://owa.workers.dev/ghi789
 
----
+
 
 User2
 No commits detected. Keep coding! 💻
 ```
 
----
 
 ## 🔧 Configuration Options
 
@@ -338,7 +335,7 @@ Edit in `wrangler.jsonc`:
 - `30 10 * * 1` → 10:30 AM UTC every Monday
 - `0 0 * * *` → Midnight UTC daily
 
----
+
 
 ## 📊 URL Shortener Details
 
@@ -372,7 +369,6 @@ Edit in `wrangler.jsonc`:
 - **Size**: ~50 bytes per entry
 - **Cost**: Free (Cloudflare KV free tier: 100K reads/day)
 
----
 
 ## 🎨 Customization
 
@@ -427,26 +423,9 @@ Contributions welcome! Areas for improvement:
 
 ## 📝 License
 
-MIT License — Free to use and modify
-
----
-
-## 🙋 Support
-
-**Issues?** Open a GitHub issue with:
-- Environment (dev/prod)
-- Error message from Worker logs
-- Relevant `.dev.vars` (without secrets)
-- Steps to reproduce
-
-**Questions?** Check:
-1. [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/)
-2. [Hono Docs](https://hono.dev/)
-3. [GitHub API Docs](https://docs.github.com/en/rest)
-4. [Green API Docs](https://greenapi.com/en/docs/)
+MIT License 
 
 
-
----
+Built with ❤️ by **[Hussain Sharif](https://github.com/Hussain-Sharif)**, **[Sadiq](https://github.com/MdSadiqMd)** & **[Sanjay](https://github.com/sanjay-daggupati)**
 
 **⭐ If this helped, please star the repo!**
