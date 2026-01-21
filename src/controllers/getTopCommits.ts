@@ -8,12 +8,65 @@ import type {
 } from "../libs/types";
 import { getRepoFileExtraInfo } from "../services/getRepoFileExtraInfo";
 
+// Local testing
+// export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
+//     return allCommistsData.filter((eachCommitObj: EachCommit) => {
+//         const commitDate = new Date(eachCommitObj.commit.committer.date);
+//         return isToday(commitDate);
+//     });
+// };
+
+// prod:
 export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
+    const IST_OFFSET = 5.5 * 60 * 60 * 1000; // IST = UTC+5:30
+    
+    // Get current time in IST
+    const nowUTC = new Date();
+    const nowIST = new Date(nowUTC.getTime() + IST_OFFSET);
+    
+    // Determine the 10 PM window boundaries
+    let windowStartIST: Date;
+    let windowEndIST: Date;
+    
+    const currentHourIST = nowIST.getUTCHours(); // Use getUTC since we shifted to IST
+    
+    if (currentHourIST >= 22) { // After 10 PM IST
+        // Window: Today 10 PM to Tomorrow 10 PM
+        windowStartIST = new Date(Date.UTC(
+            nowIST.getUTCFullYear(),
+            nowIST.getUTCMonth(),
+            nowIST.getUTCDate(),
+            22, 0, 0, 0
+        ));
+        windowEndIST = new Date(windowStartIST.getTime() + 24 * 60 * 60 * 1000);
+    } else { // Before 10 PM IST
+        // Window: Yesterday 10 PM to Today 10 PM
+        windowEndIST = new Date(Date.UTC(
+            nowIST.getUTCFullYear(),
+            nowIST.getUTCMonth(),
+            nowIST.getUTCDate(),
+            22, 0, 0, 0
+        ));
+        windowStartIST = new Date(windowEndIST.getTime() - 24 * 60 * 60 * 1000);
+    }
+    
+    // Convert IST boundaries back to UTC for comparison
+    const windowStartUTC = new Date(windowStartIST.getTime() - IST_OFFSET);
+    const windowEndUTC = new Date(windowEndIST.getTime() - IST_OFFSET);
+    
+    console.log('Filter window (IST):', {
+        start: new Date(windowStartUTC.getTime() + IST_OFFSET).toISOString(),
+        end: new Date(windowEndUTC.getTime() + IST_OFFSET).toISOString()
+    });
+    
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
-        const commitDate = new Date(eachCommitObj.commit.committer.date);
-        return isToday(commitDate);
+        const commitDateUTC = new Date(eachCommitObj.commit.committer.date);
+        
+        // Check if commit falls within window
+        return commitDateUTC >= windowStartUTC && commitDateUTC < windowEndUTC;
     });
 };
+
 
 export const formattedCommits = (
     allExtraInfocommits: ExtraInfoGoodResponseCommit[] | GithubBadResponseType[],
