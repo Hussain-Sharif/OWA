@@ -4,86 +4,110 @@ import type {
     FormattedData,
 } from "../libs/types";
 
+/*
+
+Logic Thinking for the File grouping based on the statuses is by the 
+categorization in which understanding with Oldest-first way!
+
+files:
+
+ Older  -> newer -> newer        
+
+added -> renamed  =>(finalize) renamed 
+        -> modified  =>(finalize) modified
+        -> renamed -> modified =>(finalize) modified 
+        -> modifed -> renamed  =>(finalize) renamed
+        -> removed =>(finalize) removed
+
+(renamed can't be go under added)
+renamed -> modified =>(finalize) modified 
+          ->  (finalize) renamed 
+         -> removed =>(finalize) removed
+
+(modifed can't be go under added)
+modifed -> renamed =>(finalize) renamed
+          -> modified {ignored}
+          -> removed =>(finalize) removed  
+*/
+
 const finalGroupingBasedOnStatuses = (allPossibleFileCommits: EachFilePerCommitInfo_Summary[]) => {
     const filteringMap = new Map();
-    // The commits in the order of newest-first
-    allPossibleFileCommits.forEach(
-        (eachFileData: {
-            fileName: string;
-            fileRemainingInfo: {
-                fileStatus: string;
-                fileUrl: string;
-                fileCommitDateTime: string;
-                fileCommitMessage: string;
-            };
-        }) => {
-            if (
-                !filteringMap.has(eachFileData.fileName) &&
-                eachFileData.fileRemainingInfo.fileStatus !== "deleted"
-            ) {
-                filteringMap.set(eachFileData.fileName, eachFileData.fileRemainingInfo);
-            } else {
-                // The file name already exists in the map.
-                // Handle different transitions based on the current and previous statuses.
-
-                const fileName = eachFileData.fileName;
-                const currentStatus = eachFileData.fileRemainingInfo.fileStatus;
-                const previousStatus = filteringMap.get(fileName)?.fileStatus;
-
-                // 1. The file was previously 'modified' or 'renamed' and is 'modified' again:
-                if (
-                    filteringMap.has(fileName) &&
-                    currentStatus === "modified" &&
-                    (previousStatus === "renamed")
-                ) {
-                    filteringMap.set(fileName, eachFileData.fileRemainingInfo);
-                }
-                // 2. The file was previously 'modified' or 'renamed' and is now 'renamed':
-                else if (
-                    filteringMap.has(fileName) &&
-                    currentStatus === "renamed" &&
-                    (previousStatus === "modified" )
-                ) {
-                    filteringMap.set(fileName, eachFileData.fileRemainingInfo);
-                }
-                // 3. The file was previously 'created', 'modified', or 'renamed' and is now 'deleted':
-                else if (
-                    filteringMap.has(fileName) &&
-                    currentStatus === "deleted" &&
-                    (previousStatus === "created" ||
-                        previousStatus === "modified" ||
-                        previousStatus === "renamed")
-                ) {
-                    filteringMap.delete(fileName);
-                }
+    
+    // The commits are in "Newest-first" order
+    allPossibleFileCommits.forEach((eachFileData) => {
+        const fileName = eachFileData.fileName;
+        const currentStatus = eachFileData.fileRemainingInfo.fileStatus;
+        
+        // Skip if file doesn't exist in map yet
+        if (!filteringMap.has(fileName)) {
+            // Only track: added, modified, renamed (ignore removed, copied, changed, unchanged)
+            if (["added", "modified", "renamed"].includes(currentStatus)) {
+                filteringMap.set(fileName, eachFileData.fileRemainingInfo);
             }
-        },
-    );
-
-    const categorizedMap = new Map();
-
-    // console.log("inside finalgrouping filteringMap:",filteringMap) //debug-helper
-
-    const it = filteringMap[Symbol.iterator]();
-    for (const eachCommit of it) {
-        const currCommitStatus = eachCommit[1].fileStatus;
-        const currCommitRelatedInfo = {
-            ...eachCommit[1],
-            fileName: eachCommit[0],
-        };
-
-        if (!categorizedMap.has(currCommitStatus)) {
-            categorizedMap.set(currCommitStatus, [currCommitRelatedInfo]);
-        } else {
-            categorizedMap.set(currCommitStatus, [
-                ...categorizedMap.get(currCommitStatus),
-                currCommitRelatedInfo,
-            ]);
+            return; // Move to next file
         }
+        
+        // File already exists in map (processing older commits now)
+        const previousStatus = filteringMap.get(fileName)?.fileStatus;
+        
+        // Handle status transitions [older{currentStatus} → newer{previousStatus}]
+        
+        // Case 1: File was added, then modified → keep as "modified"
+        if (currentStatus === "added" && previousStatus === "modified") {
+            // Keep the newer "modified" status
+            return;
+        }
+        
+        // Case 2: File was added, then renamed → keep as "renamed"
+        if (currentStatus === "added" && previousStatus === "renamed") {
+            // Keep the newer "renamed" status
+            return;
+        }
+        
+        // Case 3: File was modified, then renamed → keep as "renamed"
+        if (currentStatus === "modified" && previousStatus === "renamed") {
+            // Keep the newer "renamed" status, do nothing
+            return;
+        }
+        
+        // Case 4: File was renamed, then modified → keep as "modified"
+        if (currentStatus === "renamed" && previousStatus === "modified") {
+            // Keep the newer "renamed" status, do nothing
+            return;
+        }
+        
+        // Case 5: File was modified multiple times → keep latest
+        if (currentStatus === "modified" && previousStatus === "modified") {
+            // Already have latest, do nothing
+            return;
+        }
+        
+        // Case 6: File was added/modified/renamed, then removed → remove from map
+        if (currentStatus === "removed") {
+            filteringMap.delete(fileName);
+            return;
+        }
+    });
+    
+    // Group files by their final status
+    const categorizedMap = new Map();
+    
+    for (const [fileName, fileInfo] of filteringMap) {
+        const status = fileInfo.fileStatus;
+        
+        if (!categorizedMap.has(status)) {
+            categorizedMap.set(status, []);
+        }
+        
+        categorizedMap.get(status)!.push({
+            ...fileInfo,
+            fileName,
+        });
     }
-
+    
     return Object.fromEntries(categorizedMap);
 };
+
 
 export const getSummaryObject = (formattedData: FormattedData) => {
     const fileAndRemObj: EachFilePerCommitInfo_Summary[] =
@@ -100,6 +124,6 @@ export const getSummaryObject = (formattedData: FormattedData) => {
                 }),
             ),
         );
-
+    console.log(fileAndRemObj)
     return finalGroupingBasedOnStatuses(fileAndRemObj) as CommitsObject_Summary;
 };

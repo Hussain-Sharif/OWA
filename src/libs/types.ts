@@ -1,4 +1,4 @@
-export type FileStatus = "renamed" | "modified" | "created" | "deleted";
+export type FileStatus = "renamed" | "modified" | "added" | "removed";
 
 export type EachCommit = {
     sha: string;

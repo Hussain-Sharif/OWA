@@ -8,7 +8,7 @@ import type {
 } from "../libs/types";
 import { getRepoFileExtraInfo } from "../services/getRepoFileExtraInfo";
 
-// Local testing
+// Local testing:
 // export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
 //     return allCommistsData.filter((eachCommitObj: EachCommit) => {
 //         const commitDate = new Date(eachCommitObj.commit.committer.date);
@@ -30,17 +30,17 @@ export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
     
     const currentHourIST = nowIST.getUTCHours(); // Use getUTC since we shifted to IST
     
-    // if (currentHourIST >= 22) { // After 10 PM IST
-    //     // Window: Today 10 PM to Tomorrow 10 PM
-    //     windowStartIST = new Date(Date.UTC(
-    //         nowIST.getUTCFullYear(),
-    //         nowIST.getUTCMonth(),
-    //         nowIST.getUTCDate(),
-    //         22, 0, 0, 0
-    //     ));
-    //     windowEndIST = new Date(windowStartIST.getTime() + 24 * 60 * 60 * 1000);
-    // } else { // Before 10 PM IST
-        // Window: Yesterday 10 PM to Today 10 PM
+    if (currentHourIST > 22) { // After 10 PM IST
+        // Window: {eachCommitTime > [Today-10PM]} to {[Tomorrow-10PM] >= eachCommitTime}
+        windowStartIST = new Date(Date.UTC(
+            nowIST.getUTCFullYear(),
+            nowIST.getUTCMonth(),
+            nowIST.getUTCDate(),
+            22, 0, 0, 0
+        ));
+        windowEndIST = new Date(windowStartIST.getTime() + 24 * 60 * 60 * 1000);
+    } else { // Before 10 PM IST
+        // Window: {eachCommitTime > [Yesterday-10PM]} to {[Today-10PM] >= eachCommitTime }
         windowEndIST = new Date(Date.UTC(
             nowIST.getUTCFullYear(),
             nowIST.getUTCMonth(),
@@ -48,7 +48,7 @@ export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
             22, 0, 0, 0
         ));
         windowStartIST = new Date(windowEndIST.getTime() - 24 * 60 * 60 * 1000);
-    // }
+    }
     
     // Convert IST boundaries back to UTC for comparison
     const windowStartUTC = new Date(windowStartIST.getTime() - IST_OFFSET);
@@ -158,15 +158,14 @@ export const getTopCommits = async (
 
         const formattedData = formattedCommits(extraInfo);
         // console.log(`\n`+"formatted Data per data :",JSON.stringify(formattedData)) //debug-helper
-        const debuggingFilter={
-                beforeFilter:repoRepsponse.data,
-                afterFilter:filteredData
-            }
+        // const debuggingFilter={
+        //         beforeFilter:repoRepsponse.data,
+        //         afterFilter:filteredData
+        //     }
         return {
             statusCode: 200,
             message: "Commits Retrieved",
             formattedData,
-            // debuggingFilter
         };
     }
     return repoRepsponse;
