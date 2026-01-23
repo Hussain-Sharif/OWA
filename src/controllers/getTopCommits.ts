@@ -30,16 +30,16 @@ export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
     
     const currentHourIST = nowIST.getUTCHours(); // Use getUTC since we shifted to IST
     
-    if (currentHourIST >= 22) { // After 10 PM IST
-        // Window: Today 10 PM to Tomorrow 10 PM
-        windowStartIST = new Date(Date.UTC(
-            nowIST.getUTCFullYear(),
-            nowIST.getUTCMonth(),
-            nowIST.getUTCDate(),
-            22, 0, 0, 0
-        ));
-        windowEndIST = new Date(windowStartIST.getTime() + 24 * 60 * 60 * 1000);
-    } else { // Before 10 PM IST
+    // if (currentHourIST >= 22) { // After 10 PM IST
+    //     // Window: Today 10 PM to Tomorrow 10 PM
+    //     windowStartIST = new Date(Date.UTC(
+    //         nowIST.getUTCFullYear(),
+    //         nowIST.getUTCMonth(),
+    //         nowIST.getUTCDate(),
+    //         22, 0, 0, 0
+    //     ));
+    //     windowEndIST = new Date(windowStartIST.getTime() + 24 * 60 * 60 * 1000);
+    // } else { // Before 10 PM IST
         // Window: Yesterday 10 PM to Today 10 PM
         windowEndIST = new Date(Date.UTC(
             nowIST.getUTCFullYear(),
@@ -48,16 +48,16 @@ export const filteredTodaysCommits = (allCommistsData: EachCommit[]) => {
             22, 0, 0, 0
         ));
         windowStartIST = new Date(windowEndIST.getTime() - 24 * 60 * 60 * 1000);
-    }
+    // }
     
     // Convert IST boundaries back to UTC for comparison
     const windowStartUTC = new Date(windowStartIST.getTime() - IST_OFFSET);
     const windowEndUTC = new Date(windowEndIST.getTime() - IST_OFFSET);
     
-    console.log('Filter window (IST):', {
+    console.log('Filter window (IST):', JSON.stringify({
         start: new Date(windowStartUTC.getTime() + IST_OFFSET).toISOString(),
         end: new Date(windowEndUTC.getTime() + IST_OFFSET).toISOString()
-    });
+    }));
     
     return allCommistsData.filter((eachCommitObj: EachCommit) => {
         const commitDateUTC = new Date(eachCommitObj.commit.committer.date);
@@ -126,6 +126,7 @@ export const getTopCommits = async (
                 message: "No Commits Made Till Now",
             };
         }
+        // console.log(`\n`+'before filtering:',JSON.stringify(repoRepsponse.data))
 
         const filteredData: EachCommit[] = filteredTodaysCommits(repoRepsponse.data);
         if (filteredData.length === 0) {
@@ -134,7 +135,7 @@ export const getTopCommits = async (
                 message: "No Commits Today Made",
             };
         }
-
+        // console.log(`\n`+'After filtering:',JSON.stringify(filteredData))
         const listOfCommitShas: string[] = filteredData.map((eachCommitObj: EachCommit) => {
             return eachCommitObj.sha;
         });
@@ -156,11 +157,16 @@ export const getTopCommits = async (
         }
 
         const formattedData = formattedCommits(extraInfo);
-        // console.log("formatted Data per data :",formattedData) //debug-helper
+        // console.log(`\n`+"formatted Data per data :",JSON.stringify(formattedData)) //debug-helper
+        const debuggingFilter={
+                beforeFilter:repoRepsponse.data,
+                afterFilter:filteredData
+            }
         return {
             statusCode: 200,
             message: "Commits Retrieved",
             formattedData,
+            // debuggingFilter
         };
     }
     return repoRepsponse;
